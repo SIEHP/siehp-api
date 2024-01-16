@@ -1,10 +1,28 @@
 version: '3.9'
 services:
+  database:
+    image: postgres:14.1-alpine
+    restart: always
+    container_name: siehp-db
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
   app:
     build: .
     container_name: siehp-api
     ports:
-      - 3000:3000
+      - 8000:3000
     volumes:
-      - .:/usr/src/siehp-webapp
-    command: sh -c "npm ci; npm run dev"
+      - .:/usr/src/siehp-api
+    links:
+      - database
+    depends_on:
+      - database
+    command: sh -c "/wait; npm ci; npx prisma migrate dev; npx prisma db seed; npm run dev"
+    environment:
+      - WAIT_HOSTS=database:5432
+      - WAIT_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=5
+      - WAIT_HOST_CONNECT_TIMEOUT=15
