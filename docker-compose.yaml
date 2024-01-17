@@ -1,0 +1,10 @@
+version: '3.9'
+services:
+  app:
+    build: .
+    container_name: siehp-api
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/src/siehp-webapp
+    command: sh -c "npm ci; npm run dev"
