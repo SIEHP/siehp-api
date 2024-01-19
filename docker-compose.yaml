@@ -13,14 +13,14 @@ services:
     build: .
     container_name: siehp-api
     ports:
-      - 8000:3000
+      - 8080:8080
     volumes:
       - .:/usr/src/siehp-api
     links:
       - database
     depends_on:
       - database
-    command: sh -c "/wait; npm ci; npx prisma migrate dev; npx prisma db seed; npm run dev"
+    command: sh -c "/wait; npm ci; npm run start dev"
     environment:
       - WAIT_HOSTS=database:5432
       - WAIT_TIMEOUT=300
