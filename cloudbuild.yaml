@@ -9,20 +9,11 @@ steps:
 
   # Deploy
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    args: [
-      'run', 
-      'deploy', 
-      '$REPO_NAME-$BRANCH_NAME', 
-      '--image', 
-      'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA', 
-      '--region',
-      'southamerica-east1-a',
-      '--platform', 
-      'managed',
-      '--port',
-      '8080',
-      '--allow-unauthenticated'
-      ]
+   entrypoint: '/bin/sh'
+   args: [
+     '-c',
+     'gcloud run deploy $REPO_NAME-$BRANCH_NAME --image gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA --region southamerica-east1-a --platform managed --port 8080 --allow-unauthenticated'
+   ]
 
 images:
   - 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA'
