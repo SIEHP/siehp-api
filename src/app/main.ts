@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
+import { appConfig } from 'src/shared/config/appConfig';
+import { AllExceptionsFilter } from 'src/shared/domain/errors/AllException.filter';
 import { SharedModule } from 'src/shared/infra/modules/Shared.module';
+import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
 
 async function bootstrap() {
   const app = await NestFactory.create(SharedModule);
-  await app.listen(process.env.APP_PORT || 8080);
+  app.useGlobalFilters(new AllExceptionsFilter(new DiscordWebhookProvider()));
+  await app.listen(appConfig.PORT);
 }
 bootstrap();

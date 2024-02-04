@@ -8,9 +8,14 @@ import { ExampleController } from '../http/controllers/Example.controller';
 import { ExampleRepository } from '../db/repositories/Example.repository';
 import { GetExampleUseCase } from '../usecases/GetExample.usecase';
 import { ExampleMiddleware } from '../http/middlewares/Example.middleware';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
+  ],
   controllers: [ExampleController],
   providers: [ExampleRepository, GetExampleUseCase],
 })
