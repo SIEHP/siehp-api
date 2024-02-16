@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
+import 'dotenv/config';
 
 import z, { ZodError } from 'zod';
 import { WrongEnviromentException } from '../domain/errors/WrongEnviroment.exception';

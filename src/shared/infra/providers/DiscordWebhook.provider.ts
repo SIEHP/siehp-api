@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { discordConfig } from 'src/shared/config/discordConfig';
+import { discordConfig } from 'src/shared/config/discord';
 import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
 import { DiscordWebhookProviderInterface } from 'src/shared/domain/providers/DiscordWebhook.provider';
 import { getTimestampIcon } from '../utils/functions';
-import { appConfig } from 'src/shared/config/appConfig';
+import { appConfig } from 'src/shared/config/app';
 
 @Injectable()
 export class DiscordWebhookProvider implements DiscordWebhookProviderInterface {
