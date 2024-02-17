@@ -14,8 +14,8 @@ import { CreateExampleDTO } from 'src/shared/domain/dtos/requests/GetExample.req
 import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller('example')
-@ApiTags('Example')
+@Controller('example2')
+@ApiTags('Example2')
 @ApiResponse({
   status: HttpStatus.UNPROCESSABLE_ENTITY,
   description: 'Erro de validação',
@@ -26,16 +26,16 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
   description: 'Não autorizado, token inválido',
   type: AllExceptionsFilterDTO,
 })
-export class ExampleController {
+export class Example2Controller {
   constructor(private getExampleUseCase: GetExampleUseCase) {}
 
   @Post('')
+  @ApiOperation({ summary: 'Método de criação' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Exemplo criado com sucesso',
     type: CreateExampleDTO,
   })
-  @ApiOperation({ summary: 'Método de criação' })
   async createExample(
     @Body() createExampleBody: CreateExampleDTO,
     @Res() res: Response,
