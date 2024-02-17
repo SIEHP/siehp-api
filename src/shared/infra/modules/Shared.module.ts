@@ -11,6 +11,7 @@ import { ExampleMiddleware } from '../http/middlewares/Example.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { Example2Controller } from '../http/controllers/Example2.controller';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
       envFilePath: '.env',
     }),
   ],
-  controllers: [ExampleController],
+  controllers: [ExampleController, Example2Controller],
   providers: [
     ExampleRepository,
     GetExampleUseCase,
