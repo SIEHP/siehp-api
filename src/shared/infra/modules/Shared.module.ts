@@ -9,6 +9,8 @@ import { ExampleRepository } from '../db/repositories/Example.repository';
 import { GetExampleUseCase } from '../usecases/GetExample.usecase';
 import { ExampleMiddleware } from '../http/middlewares/Example.middleware';
 import { ConfigModule } from '@nestjs/config';
+import { APP_PIPE } from '@nestjs/core';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @Module({
   imports: [
@@ -17,7 +19,14 @@ import { ConfigModule } from '@nestjs/config';
     }),
   ],
   controllers: [ExampleController],
-  providers: [ExampleRepository, GetExampleUseCase],
+  providers: [
+    ExampleRepository,
+    GetExampleUseCase,
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe,
+    },
+  ],
 })
 export class SharedModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

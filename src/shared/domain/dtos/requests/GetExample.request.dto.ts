@@ -1,10 +1,14 @@
-import { z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'nestjs-zod/z';
 
-export const createExampleSchema = z
+export const CreateExampleSchema = z
   .object({
-    name: z.string(),
-    age: z.number(),
+    name: z.string().describe('Nome do exemplo'),
+    age: z.number().describe('Idade do exemplo'),
+    sex: z
+      .enum(['male', 'female', 'nonbinary'])
+      .describe('We respect your gender choice'),
   })
   .required();
 
-export type CreateExampleDTO = z.infer<typeof createExampleSchema>;
+export class CreateExampleDTO extends createZodDto(CreateExampleSchema) {}
