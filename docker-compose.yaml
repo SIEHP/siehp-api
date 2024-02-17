@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   database:
-    image: postgres:14.1-alpine
+    image: postgres:15.1-alpine
     restart: always
     container_name: siehp-db
     ports:
@@ -20,7 +20,7 @@ services:
       - database
     depends_on:
       - database
-    command: sh -c "/wait; npm ci; npm run start dev"
+    command: sh -c "/wait; npm ci; npm run start:dev"
     environment:
       - WAIT_HOSTS=database:5432
       - WAIT_TIMEOUT=300
