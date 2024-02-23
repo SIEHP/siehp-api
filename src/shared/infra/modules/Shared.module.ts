@@ -1,4 +1,5 @@
 import {
+  Global,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -11,15 +12,16 @@ import { ExampleMiddleware } from '../http/middlewares/Example.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
-import { Example2Controller } from '../http/controllers/Example2.controller';
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
+      isGlobal: true,
     }),
   ],
-  controllers: [ExampleController, Example2Controller],
+  controllers: [ExampleController],
   providers: [
     ExampleRepository,
     GetExampleUseCase,
@@ -28,6 +30,7 @@ import { Example2Controller } from '../http/controllers/Example2.controller';
       useClass: ZodValidationPipe,
     },
   ],
+  exports: [ExampleRepository, GetExampleUseCase],
 })
 export class SharedModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

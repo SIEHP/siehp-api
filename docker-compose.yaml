@@ -9,6 +9,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=local
   app:
     build: .
     container_name: siehp-api
@@ -20,7 +21,7 @@ services:
       - database
     depends_on:
       - database
-    command: sh -c "/wait; npm ci; npm run start:dev"
+    command: sh -c "/wait; npm ci; npx prisma migrate dev; npx prisma db seed; npm run start:dev"
     environment:
       - WAIT_HOSTS=database:5432
       - WAIT_TIMEOUT=300

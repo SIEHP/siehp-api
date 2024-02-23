@@ -17,13 +17,7 @@ async function bootstrap() {
 
   patchNestJsSwagger();
 
-  const sharedDocument = SwaggerModule.createDocument(
-    app,
-    sharedSwaggerConfig,
-    {
-      include: [SharedModule],
-    },
-  );
+  const sharedDocument = SwaggerModule.createDocument(app, sharedSwaggerConfig);
   SwaggerModule.setup('swagger', app, sharedDocument);
 
   await app.listen(appConfig.PORT);

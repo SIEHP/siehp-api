@@ -1,7 +1,8 @@
-import { ExampleModel } from '../repositories/GetExample.repository.dto';
+import { Example } from '@prisma/client';
+import { CreateExampleBodyDTO } from '../requests/GetExample.request.dto';
 
-export interface GetExampleUseCaseParamsDTO {}
+export interface GetExampleUseCaseParamsDTO extends CreateExampleBodyDTO {}
 
 export interface GetExampleUseCaseResponseDTO {
-  example: ExampleModel;
+  example: Example;
 }

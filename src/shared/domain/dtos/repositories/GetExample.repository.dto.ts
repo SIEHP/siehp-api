@@ -1,14 +1,10 @@
 // import { ExampleModel } from 'prisma';
-
-export interface ExampleModel {
-  // Remover depois
-  example: string;
-}
+import { Example } from '@prisma/client';
 
 export interface GetExampleParamsDTO {
   example: string;
 }
 
 export interface GetExampleResponseDTO {
-  example: ExampleModel;
+  example: Example;
 }

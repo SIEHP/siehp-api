@@ -1,13 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'nestjs-zod/z';
 
-// export class AllExceptionsFilterDTO {
-//   message: string;
-//   statusCode: number;
-//   timestamp: string;
-//   path: string;
-// }
-
 export const AllExceptionFilterSchema = z
   .object({
     message: z.string().describe('Descrição do erro'),
@@ -15,7 +8,8 @@ export const AllExceptionFilterSchema = z
     timestamp: z.string().describe('Timestamp do erro'),
     path: z.string().describe('Caminho do erro'),
   })
-  .required();
+  .required()
+  .describe('Resposta de erro genérico');
 
 export class AllExceptionsFilterDTO extends createZodDto(
   AllExceptionFilterSchema,

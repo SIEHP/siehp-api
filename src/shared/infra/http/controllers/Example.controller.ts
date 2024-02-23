@@ -10,20 +10,16 @@ import {
 import { GetExampleUseCase } from '../../usecases/GetExample.usecase';
 import { Response } from 'express';
 import { ExampleException } from 'src/shared/domain/errors/Example.exception';
-import { CreateExampleDTO } from 'src/shared/domain/dtos/requests/GetExample.request.dto';
+import { CreateExampleBodyDTO } from 'src/shared/domain/dtos/requests/GetExample.request.dto';
 import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ValidationException } from 'src/shared/domain/errors/Validation.exception';
 
 @Controller('example')
 @ApiTags('Example')
 @ApiResponse({
-  status: HttpStatus.UNPROCESSABLE_ENTITY,
-  description: 'Erro de validação',
-  type: AllExceptionsFilterDTO,
-})
-@ApiResponse({
-  status: HttpStatus.UNAUTHORIZED,
-  description: 'Não autorizado, token inválido',
+  status: new ValidationException().getStatus(),
+  description: new ValidationException().message,
   type: AllExceptionsFilterDTO,
 })
 export class ExampleController {
@@ -33,11 +29,11 @@ export class ExampleController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'Exemplo criado com sucesso',
-    type: CreateExampleDTO,
+    type: CreateExampleBodyDTO,
   })
   @ApiOperation({ summary: 'Método de criação' })
   async createExample(
-    @Body() createExampleBody: CreateExampleDTO,
+    @Body() createExampleBody: CreateExampleBodyDTO,
     @Res() res: Response,
   ) {
     return res.status(HttpStatus.CREATED).json(createExampleBody);
@@ -52,6 +48,11 @@ export class ExampleController {
   }
 
   @Get('2')
+  @ApiResponse({
+    status: new ExampleException().getStatus(),
+    description: new ExampleException().message,
+    type: AllExceptionsFilterDTO,
+  })
   getExceptionExample() {
     throw new ExampleException();
   }
