@@ -1,11 +1,9 @@
 import 'dotenv/config';
 import { appConfig } from '../../../../config/app';
-import { exampleSeeder } from './example';
+import { PrismaProvider } from '../providers/Prisma.provider';
 
-const seed = async () => {
-  await Promise.all([exampleSeeder()]);
-};
+const prisma = new PrismaProvider();
 
 if (appConfig.NODE_ENV !== 'production') {
-  seed();
+  prisma.seed();
 }

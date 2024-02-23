@@ -7,7 +7,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { GetExampleUseCase } from '../../usecases/GetExample.usecase';
+import { GetExampleUseCase } from '../../usecases/GetExample/GetExample.usecase';
 import { Response } from 'express';
 import { ExampleException } from 'src/shared/domain/errors/Example.exception';
 import { CreateExampleBodyDTO } from 'src/shared/domain/dtos/requests/GetExample.request.dto';

@@ -1,17 +1,15 @@
-import { prisma } from '..';
+import { PrismaClient } from '@prisma/client';
 
-export const exampleSeeder = async () => {
-  const exampleOperation1 = prisma.example.upsert({
-    where: {
-      id: 1,
-    },
-    update: {},
-    create: {},
+export const exampleSeeder = async (prisma: PrismaClient) => {
+  const exampleOperation1 = prisma.example.create({
+    data: {},
   });
 
   try {
     await prisma.$transaction([exampleOperation1]);
   } catch (error) {
-    console.log('deu erro');
+    if (error instanceof Error) {
+      throw new Error(`Error on exampleSeeder: ${error.message}`);
+    }
   }
 };
