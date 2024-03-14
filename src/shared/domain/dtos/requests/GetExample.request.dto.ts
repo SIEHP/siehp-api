@@ -9,8 +9,7 @@ export enum ExampleEnum {
 
 const CreateExampleBodySchema = z
   .object({
-    name: z.string().describe('Nome do exemplo'),
-    age: z.number().describe('Idade do exemplo'),
+    id: z.number().int().positive().describe('ID do usuário'),
     sex: z.nativeEnum(ExampleEnum).describe('We respect your gender choice'),
   })
   .required();

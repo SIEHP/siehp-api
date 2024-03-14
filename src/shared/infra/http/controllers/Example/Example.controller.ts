@@ -7,7 +7,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { GetExampleUseCase } from '../../usecases/GetExample/GetExample.usecase';
+import { GetExampleUseCase } from '../../../usecases/GetExample.usecase';
 import { Response } from 'express';
 import { ExampleException } from 'src/shared/domain/errors/Example.exception';
 import { CreateExampleBodyDTO } from 'src/shared/domain/dtos/requests/GetExample.request.dto';
@@ -36,15 +36,13 @@ export class ExampleController {
     @Body() createExampleBody: CreateExampleBodyDTO,
     @Res() res: Response,
   ) {
-    return res.status(HttpStatus.CREATED).json(createExampleBody);
+    const example = await this.getExampleUseCase.execute(createExampleBody);
+    return res.status(HttpStatus.CREATED).json(example);
   }
 
   @Get('')
   async getExample(@Req() req: Request, @Res() res: Response) {
-    console.log(req.body);
-
-    const example = await this.getExampleUseCase.execute({});
-    return res.status(HttpStatus.ACCEPTED).json(example);
+    return res.status(HttpStatus.NO_CONTENT);
   }
 
   @Get('2')

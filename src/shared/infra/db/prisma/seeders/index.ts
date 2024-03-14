@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { appConfig } from '../../../../config/app';
-import { PrismaProvider } from '../providers/Prisma.provider';
+import { PrismaProvider } from '../../../providers/Prisma.provider';
 
 const prisma = new PrismaProvider();
 

@@ -1,7 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { Enviroment, appConfig } from '../../../../config/app';
-import { exampleSeeder } from '../seeders/example';
+import { Enviroment, appConfig } from '../../config/app';
+import { exampleSeeder } from '../db/prisma/seeders/example';
 
 @Injectable()
 export class PrismaProvider

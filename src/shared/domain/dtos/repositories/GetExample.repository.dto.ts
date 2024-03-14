@@ -1,9 +1,7 @@
 import { Example } from '@prisma/client';
 
 export interface GetExampleParamsDTO {
-  example: string;
+  id: number;
 }
 
-export interface GetExampleResponseDTO {
-  example: Example;
-}
+export interface GetExampleResponseDTO extends Example {}

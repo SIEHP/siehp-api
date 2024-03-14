@@ -4,20 +4,21 @@ import {
   GetExampleResponseDTO,
 } from 'src/shared/domain/dtos/repositories/GetExample.repository.dto';
 import { ExampleRepositoryInterface } from 'src/shared/domain/repositories/Example.repository';
-import { PrismaProvider } from '../prisma/providers/Prisma.provider';
+import { PrismaProvider } from '../../providers/Prisma.provider';
 
 @Injectable()
 export class ExampleRepository implements ExampleRepositoryInterface {
   constructor(private prisma: PrismaProvider) {}
 
   async getExample({
-    example,
+    id,
   }: GetExampleParamsDTO): Promise<GetExampleResponseDTO> {
-    console.log(example);
-    const exampleModel = await this.prisma.example.findFirst();
+    const exampleModel = await this.prisma.example.findUnique({
+      where: {
+        id,
+      },
+    });
 
-    return {
-      example: exampleModel,
-    };
+    return exampleModel;
   }
 }
