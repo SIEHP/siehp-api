@@ -34,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: Test the app
-        run: npm run test
+        run: npx prisma migrate dev; npm run test
         env:
           NODE_ENV: test
           SHADOW_DATABASE_URL: "postgresql://postgres:postgres@database-test/test"
