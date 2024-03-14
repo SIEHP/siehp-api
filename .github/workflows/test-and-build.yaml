@@ -21,6 +21,20 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+
+      database:
+        image: postgres:15.1-alpine
+        env:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: local
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5433:5432
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,5 +52,5 @@ jobs:
         env:
           NODE_ENV: test
           SHADOW_DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/test"
-          DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/test"
+          DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5433/local"
           APP_PORT: "8080"
