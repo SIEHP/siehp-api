@@ -10,6 +10,8 @@ import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhoo
 
 @Catch(ZodValidationException)
 export class ZodValidationExceptionFilter implements ExceptionFilter {
+  constructor() {}
+
   catch(exception: ZodValidationException, host: ArgumentsHost) {
     const errorMessage = exception
       .getZodError()

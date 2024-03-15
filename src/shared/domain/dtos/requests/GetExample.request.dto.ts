@@ -1,14 +1,19 @@
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'nestjs-zod/z';
 
-export const CreateExampleSchema = z
+export enum ExampleEnum {
+  MALE = 'male',
+  FEMALE = 'female',
+  OTHER = 'other',
+}
+
+const CreateExampleBodySchema = z
   .object({
-    name: z.string().describe('Nome do exemplo'),
-    age: z.number().describe('Idade do exemplo'),
-    sex: z
-      .enum(['male', 'female', 'nonbinary'])
-      .describe('We respect your gender choice'),
+    id: z.number().int().positive().describe('ID do usuário'),
+    sex: z.nativeEnum(ExampleEnum).describe('We respect your gender choice'),
   })
   .required();
 
-export class CreateExampleDTO extends createZodDto(CreateExampleSchema) {}
+export class CreateExampleBodyDTO extends createZodDto(
+  CreateExampleBodySchema,
+) {}
