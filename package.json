@@ -1,6 +1,6 @@
 {
   "name": "siehp-api",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Interface de programação para a aplicação do Sistema Integrado de Ensino a Histologia e Patologia",
   "author": "Siehp",
   "private": true,
@@ -78,6 +78,16 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
+    "coveragePathIgnorePatterns": [
+      "/app/",
+      "/swagger.ts",
+      "/prisma/seeders/"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 75
+      }
+    },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
