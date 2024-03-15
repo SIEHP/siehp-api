@@ -1,4 +1,5 @@
 export const CLOCK_HOURS_EMOJI = {
+  '0H00': '🕛',
   '1H00': '🕐',
   '2H00': '🕑',
   '3H00': '🕒',

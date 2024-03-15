@@ -4,10 +4,12 @@ import { discordConfig } from 'src/shared/config/discord';
 import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
 import { DiscordWebhookProviderInterface } from 'src/shared/domain/providers/DiscordWebhook.provider';
 import { getTimestampIcon } from '../utils/functions';
-import { appConfig } from 'src/shared/config/app';
+import { Enviroment, appConfig } from 'src/shared/config/app';
 
 @Injectable()
 export class DiscordWebhookProvider implements DiscordWebhookProviderInterface {
+  constructor(private enviroment: Enviroment = appConfig.NODE_ENV) {}
+
   async error({
     message,
     path,
@@ -23,9 +25,13 @@ export class DiscordWebhookProvider implements DiscordWebhookProviderInterface {
 
     const content = `🛑 **Error**: ${message}\n⛵ **Path**: ${path}\n💻 **StatusCode**: ${statusCode}\n${timeStampIcon} **Timestamp**: ${timestampText}\n\n‎`;
 
+    if (this.enviroment === Enviroment.TEST) {
+      return;
+    }
+
     if (
       !discordConfig.ERROR_WEBHOOK_URL ||
-      appConfig.NODE_ENV === 'development'
+      this.enviroment === Enviroment.DEVELOPMENT
     ) {
       console.log(content);
       return;
@@ -37,9 +43,13 @@ export class DiscordWebhookProvider implements DiscordWebhookProviderInterface {
   }
 
   async log(message: string): Promise<void> {
+    if (this.enviroment === Enviroment.TEST) {
+      return;
+    }
+
     if (
       !discordConfig.LOG_WEBHOOK_URL ||
-      appConfig.NODE_ENV === 'development'
+      this.enviroment === Enviroment.DEVELOPMENT
     ) {
       console.log(message);
       return;

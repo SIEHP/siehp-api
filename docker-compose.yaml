@@ -3,12 +3,23 @@ services:
   database:
     image: postgres:15.1-alpine
     restart: always
-    container_name: siehp-db
+    container_name: siehp-db-local
     ports:
       - 5432:5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=local
+  database-test:
+    image: postgres:15.1-alpine
+    restart: always
+    container_name: siehp-db-test
+    ports:
+      - 5433:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=test
   app:
     build: .
     container_name: siehp-api
@@ -20,7 +31,7 @@ services:
       - database
     depends_on:
       - database
-    command: sh -c "/wait; npm ci; npm run start:dev"
+    command: sh -c "/wait; npm ci; npx prisma migrate dev; npx prisma db seed; npm run start:dev"
     environment:
       - WAIT_HOSTS=database:5432
       - WAIT_TIMEOUT=300
