@@ -17,7 +17,7 @@ describe('ExampleController - /example', () => {
   let app: NestExpressApplication;
   let prisma: PrismaProvider;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [SharedModule],
     })
@@ -49,14 +49,6 @@ describe('ExampleController - /example', () => {
 
   describe('POST /', () => {
     const route = `${controllerRoute}/`;
-
-    beforeEach(async () => {
-      // await prisma;
-    });
-
-    afterEach(async () => {
-      // await prisma;
-    });
 
     it('should throw error if id not sent', async () => {
       const data = {
