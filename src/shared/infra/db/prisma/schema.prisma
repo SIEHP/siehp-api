@@ -8,6 +8,75 @@ datasource db {
     shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Example {
-    id Int @id @default(autoincrement())
+model User {
+    id                Int      @id @default(autoincrement())
+    name              String   @db.Char(255)
+    email             String   @unique @db.Char(255)
+    password          String   @db.Char(255)
+    registration_code String   @unique @db.Char(255)
+    role              Role
+    status            Status   @default(ACTIVE)
+    created_at        DateTime @default(now())
+    updated_at        DateTime @default(now()) @updatedAt
+    created_by        Int
+    updated_by        Int?
+
+    user_permissions UserPermission[]
+
+    @@map("users")
+}
+
+model UserPermission {
+    id            Int      @id @default(autoincrement())
+    user_id       Int
+    permission_id Int
+    status        Status   @default(ACTIVE)
+    created_at    DateTime @default(now())
+    updated_at    DateTime @default(now()) @updatedAt
+    created_by    Int
+    updated_by    Int?
+
+    user       User       @relation(fields: [user_id], references: [id])
+    permission Permission @relation(fields: [permission_id], references: [id])
+
+    @@map("user_permissions")
+}
+
+model Permission {
+    id          Int      @id @default(autoincrement())
+    name        String   @unique
+    description String
+    status      Status   @default(ACTIVE)
+    created_at  DateTime @default(now())
+
+    permissions_included    IncludedPermissions[] @relation(name: "PermissionRelation")
+    included_in_permissions IncludedPermissions[] @relation(name: "IncludedPermissionRelation")
+    user_permissions        UserPermission[]
+
+    @@map("permissions")
+}
+
+model IncludedPermissions {
+    id                     Int      @id @default(autoincrement())
+    included_permission_id Int
+    permission_id          Int
+    status                 Status   @default(ACTIVE)
+    created_at             DateTime @default(now())
+
+    permission          Permission? @relation(name: "PermissionRelation", fields: [permission_id], references: [id])
+    included_permission Permission? @relation(name: "IncludedPermissionRelation", fields: [included_permission_id], references: [id])
+
+    @@map("included_permissions")
+}
+
+enum Role {
+    ADMIN
+    PROFESSOR
+    STUDENT
+}
+
+enum Status {
+    ACTIVE
+    INACTIVE
+    DELETED
 }
