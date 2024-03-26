@@ -8,6 +8,60 @@ datasource db {
     shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model Example {
+model user {
     id Int @id @default(autoincrement())
+    name String
+    email String
+    password String
+    registration_code String
+    role Role
+    status Status
+    created_at DateTime
+    updated_at DateTime
+    updated_by Int
+    created_by Int
+}
+
+model user_permission {
+    id Int @id @default(autoincrement())
+    user_id Int
+    permission_id Int
+    status Status
+    created_at DateTime
+    updated_at DateTime
+    updated_by Int
+    created_by Int
+}
+model permission {
+    id Int @id @default(autoincrement())
+    name String
+    description String
+    status Status
+    created_at DateTime
+    updated_at DateTime
+    updated_by Int
+    created_by Int
+}
+
+model included_permissions {
+    id Int @id @default(autoincrement())
+    included_permission_id Int
+    permission_id Int
+    status Status
+    created_at DateTime
+    updated_at DateTime
+    updated_by Int
+    created_by Int
+}
+
+enum Role {
+    ADMINISTRATOR
+    PROFESSOR
+    STUDENT
+}
+
+enum Status {
+    ACTIVE
+    INACTIVE
+    DELETED
 }
