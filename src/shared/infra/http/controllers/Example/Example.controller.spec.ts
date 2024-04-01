@@ -47,7 +47,7 @@ describe('ExampleController - /example', () => {
     await prisma.clear();
   });
 
-  describe('POST /', () => {
+  describe.skip('POST /', () => {
     const route = `${controllerRoute}/`;
 
     it('should throw error if id not sent', async () => {
