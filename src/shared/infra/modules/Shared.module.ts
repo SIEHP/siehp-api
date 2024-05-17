@@ -13,6 +13,8 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PrismaProvider } from '../providers/Prisma.provider';
+import { CheckUserPermissionsUseCase } from 'src/modules/user/infra/usecases/CheckUserPermissions.usecase';
+import { PermissionRepository } from 'src/modules/user/infra/db/repositories/Permission.repository';
 
 @Global()
 @Module({
@@ -22,9 +24,11 @@ import { PrismaProvider } from '../providers/Prisma.provider';
       isGlobal: true,
     }),
   ],
-  controllers: [ExampleController],
+  controllers: [ExampleController], // TODO: Remove these examples after fully implemented
   providers: [
     ExampleRepository,
+    CheckUserPermissionsUseCase,
+    PermissionRepository,
     GetExampleUseCase,
     PrismaProvider,
     {
@@ -47,6 +51,7 @@ import { PrismaProvider } from '../providers/Prisma.provider';
 })
 export class SharedModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    // TODO: Remove this middleware after fully implemented
     consumer.apply(ExampleMiddleware).forRoutes({
       path: 'example',
       method: RequestMethod.GET,

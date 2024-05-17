@@ -14,6 +14,8 @@ import { CreateExampleBodyDTO } from 'src/shared/domain/dtos/requests/GetExample
 import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ValidationException } from 'src/shared/domain/errors/Validation.exception';
+import { CheckUserPermissionsUseCase } from 'src/modules/user/infra/usecases/CheckUserPermissions.usecase';
+import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
 
 @Controller('example')
 @ApiTags('Example')
@@ -23,7 +25,10 @@ import { ValidationException } from 'src/shared/domain/errors/Validation.excepti
   type: AllExceptionsFilterDTO,
 })
 export class ExampleController {
-  constructor(private getExampleUseCase: GetExampleUseCase) {}
+  constructor(
+    private getExampleUseCase: GetExampleUseCase,
+    private checkUserPermissionsUseCase: CheckUserPermissionsUseCase,
+  ) {}
 
   @Post('')
   @ApiResponse({
@@ -36,8 +41,20 @@ export class ExampleController {
     @Body() createExampleBody: CreateExampleBodyDTO,
     @Res() res: Response,
   ) {
-    const example = await this.getExampleUseCase.execute(createExampleBody);
-    return res.status(HttpStatus.CREATED).json(example);
+    const checkUserPermission = await this.checkUserPermissionsUseCase.execute({
+      user_id: createExampleBody.id,
+      neededPermissions: ['ACESSAR_LOGS', 'MANTER_TURMAS'],
+    });
+
+    if (checkUserPermission.hasPermission) {
+      console.log('hasPermissions', checkUserPermission);
+      const example = await this.getExampleUseCase.execute(createExampleBody);
+      return res.status(HttpStatus.CREATED).json(example);
+    }
+
+    throw new InvalidPermissionsException({
+      permissions: checkUserPermission.notIncludedPermissions,
+    });
   }
 
   @Get('')
