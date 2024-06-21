@@ -1,4 +1,6 @@
 import { Permissions, PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { SALT } from '../../../utils/constants/';
 
 export const userSeeder = async (prisma: PrismaClient) => {
   const permissionsExists = await prisma.permission.findMany({});
@@ -89,12 +91,15 @@ export const userSeeder = async (prisma: PrismaClient) => {
       },
     ],
   });
+  const salt = await bcrypt.genSalt(SALT);
+  const password = 'Coxinh@123';
+  const hashPassword = await bcrypt.hash(password, salt);
 
   const userOperation1 = prisma.user.create({
     data: {
       email: 'test1@email.com',
       name: 'test1',
-      password: '123456',
+      password: hashPassword,
       role: 'ADMIN',
       status: 'ACTIVE',
       registration_code: '123456',
