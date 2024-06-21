@@ -41,16 +41,19 @@ export class PrismaProvider
     }
 
     await this.$queryRawUnsafe(
-      'TRUNCATE TABLE "users" RESTART IDENTITY CASCADE;',
-    );
-    await this.$queryRawUnsafe(
       'TRUNCATE TABLE "user_permissions" RESTART IDENTITY CASCADE;',
     );
+
     await this.$queryRawUnsafe(
-      'TRUNCATE TABLE "permissions" RESTART IDENTITY CASCADE;',
+      'TRUNCATE TABLE "users" RESTART IDENTITY CASCADE;',
     );
+
     await this.$queryRawUnsafe(
       'TRUNCATE TABLE "included_permissions" RESTART IDENTITY CASCADE;',
+    );
+
+    await this.$queryRawUnsafe(
+      'TRUNCATE TABLE "permissions" RESTART IDENTITY CASCADE;',
     );
   }
 }
