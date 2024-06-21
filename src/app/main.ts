@@ -6,11 +6,11 @@ import { appConfig } from 'src/shared/config/app';
 import { sharedSwaggerConfig } from 'src/shared/config/swagger';
 import { AllExceptionsFilter } from 'src/shared/domain/errors/AllException.filter';
 import { ZodValidationExceptionFilter } from 'src/shared/domain/errors/ZodValidationException.filter';
-import { SharedModule } from 'src/shared/infra/modules/Shared.module';
 import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(SharedModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.useGlobalFilters(
     new AllExceptionsFilter(new DiscordWebhookProvider()),
     new ZodValidationExceptionFilter(),
