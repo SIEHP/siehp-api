@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';
@@ -11,9 +11,17 @@ import { UserModule } from '../../modules/User.module';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
 import { UnauthorizedException } from 'src/modules/user/domain/errors/Unauthorized.exception';
 import { SharedModule } from 'src/shared/infra/modules/Shared.module';
+import { LoginBodySchema } from 'src/modules/user/domain/dtos/requests/Login.request.dto';
+import { ZodError } from 'zod';
+import { ValidationException } from 'src/shared/domain/errors/Validation.exception';
+import { SALT } from 'src/shared/infra/utils/constants';
+import * as bcrypt from 'bcrypt';
+import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
 
 describe('UserController - /user', () => {
   const controllerRoute = '/user';
+  const loginRoute = `${controllerRoute}/login`;
+  const testRoute = `${controllerRoute}/teste`;
 
   let app: NestExpressApplication;
   let prisma: PrismaProvider;
@@ -50,7 +58,33 @@ describe('UserController - /user', () => {
   });
 
   describe('POST /login', () => {
-    const loginRoute = `${controllerRoute}/login`;
+    it('should throw error if email or password is unprocessable', async () => {
+      const wrongEmail = 'test1email.com';
+      const longPassword = 'a'.repeat(101);
+
+      const loginDto = {
+        email: wrongEmail,
+        password: longPassword,
+      };
+
+      let expectedError: HttpException | undefined;
+
+      try {
+        LoginBodySchema.parse(loginDto);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          expectedError = new ValidationException(error);
+        }
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(loginRoute)
+        .send(loginDto)
+        .set('Accept', 'application/json');
+
+      expect(response.status).toBe(expectedError.getStatus());
+      expect(response.body?.message).toEqual(expectedError.message);
+    });
 
     it('should return a JWT token for valid credentials', async () => {
       const loginDto = {
@@ -87,8 +121,6 @@ describe('UserController - /user', () => {
   });
 
   describe('GET /teste', () => {
-    const testRoute = `${controllerRoute}/teste`;
-
     it('should return user info for valid JWT token', async () => {
       const response = await request(app.getHttpServer())
         .get(testRoute)
@@ -105,6 +137,49 @@ describe('UserController - /user', () => {
         .set('Accept', 'application/json');
 
       const expectedError = new UnauthorizedException();
+
+      expect(response.status).toEqual(expectedError.getStatus());
+      expect(response.body?.message).toEqual(expectedError.message);
+    });
+
+    it('should throw forbidden when user dont have permission', async () => {
+      const salt = await bcrypt.genSalt(SALT);
+
+      const email = 'test2@email.com';
+      const password = 'Coxinh@1234';
+      const hashPassword = await bcrypt.hash(password, salt);
+
+      await prisma.user.create({
+        data: {
+          email,
+          name: 'test2',
+          password: hashPassword,
+          role: 'ADMIN',
+          status: 'ACTIVE',
+          registration_code: '1234567',
+        },
+      });
+
+      const loginDto = {
+        email,
+        password,
+      };
+
+      const loginResponse = await request(app.getHttpServer())
+        .post(loginRoute)
+        .send(loginDto)
+        .set('Accept', 'application/json');
+
+      const newUserAcessToken = loginResponse.body.access_token;
+
+      const response = await request(app.getHttpServer())
+        .get(testRoute)
+        .set('Authorization', `Bearer ${newUserAcessToken}`)
+        .set('Accept', 'application/json');
+
+      const expectedError = new InvalidPermissionsException({
+        permissions: ['ACESSAR_LOGS'],
+      });
 
       expect(response.status).toEqual(expectedError.getStatus());
       expect(response.body?.message).toEqual(expectedError.message);

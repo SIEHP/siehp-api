@@ -83,12 +83,14 @@
     ],
     "coveragePathIgnorePatterns": [
       "/app/",
+      "/WrongEnviroment.exception.ts",
+      "@types/",
       "/swagger.ts",
       "/prisma/seeders/"
     ],
     "coverageThreshold": {
       "global": {
-        "statements": 0
+        "statements": 75
       }
     },
     "coverageDirectory": "../coverage",
