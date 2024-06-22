@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
-  FindPermissionsByUserIdDTO,
-  FindPermissionsByUserIdResponseDTO,
+  FindPermissionsByUserEmailDTO,
+  FindPermissionsByUserEmailResponseDTO,
 } from 'src/modules/user/domain/dtos/repositories/Permission.repository.dto';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
 import { PermissionRepositoryInterface } from 'src/modules/user/domain/repositories/Permission.repository';
@@ -11,12 +11,12 @@ import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';
 export class PermissionRepository implements PermissionRepositoryInterface {
   constructor(private readonly prisma: PrismaProvider) {}
 
-  async findPermissionsByUserId({
-    user_id,
-  }: FindPermissionsByUserIdDTO): Promise<FindPermissionsByUserIdResponseDTO> {
+  async findPermissionsByUserEmail({
+    user_email,
+  }: FindPermissionsByUserEmailDTO): Promise<FindPermissionsByUserEmailResponseDTO> {
     const user = await this.prisma.user.findUnique({
       where: {
-        id: user_id,
+        email: user_email,
       },
     });
 
@@ -24,7 +24,7 @@ export class PermissionRepository implements PermissionRepositoryInterface {
 
     const userPermissions = await this.prisma.userPermission.findMany({
       where: {
-        user_id,
+        user_id: user.id,
       },
       select: {
         permission: {

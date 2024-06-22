@@ -1,10 +1,10 @@
 import {
-  FindPermissionsByUserIdDTO,
-  FindPermissionsByUserIdResponseDTO,
+  FindPermissionsByUserEmailDTO,
+  FindPermissionsByUserEmailResponseDTO,
 } from '../dtos/repositories/Permission.repository.dto';
 
 export interface PermissionRepositoryInterface {
-  findPermissionsByUserId(
-    data: FindPermissionsByUserIdDTO,
-  ): Promise<FindPermissionsByUserIdResponseDTO>;
+  findPermissionsByUserEmail(
+    data: FindPermissionsByUserEmailDTO,
+  ): Promise<FindPermissionsByUserEmailResponseDTO>;
 }

@@ -12,12 +12,12 @@ export class CheckUserPermissionsUseCase implements UseCaseInterface {
   constructor(private permissionRepository: PermissionRepository) {}
 
   async execute({
-    user_id,
+    user_email,
     neededPermissions,
   }: CheckUserPermissionsUseCaseDTO): Promise<CheckUserPermissionsUseCaseResponseDTO> {
     const userPermissions = (
-      await this.permissionRepository.findPermissionsByUserId({
-        user_id,
+      await this.permissionRepository.findPermissionsByUserEmail({
+        user_email,
       })
     ).permissions;
 

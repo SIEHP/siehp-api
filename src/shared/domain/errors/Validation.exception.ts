@@ -1,7 +1,12 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { ZodError } from 'zod';
 
 export class ValidationException extends HttpException {
-  constructor() {
-    super('Erro de valição', HttpStatus.UNPROCESSABLE_ENTITY);
+  constructor(error: ZodError) {
+    const errorMessage = error.errors
+      .map((error) => `${error.message}`)
+      .join('\n');
+
+    super(errorMessage, HttpStatus.UNPROCESSABLE_ENTITY);
   }
 }

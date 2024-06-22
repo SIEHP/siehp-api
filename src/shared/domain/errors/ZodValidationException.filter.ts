@@ -1,23 +1,15 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { ZodValidationException } from 'nestjs-zod';
 import { AllExceptionsFilter } from './AllException.filter';
 import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
+import { ValidationException } from './Validation.exception';
 
 @Catch(ZodValidationException)
 export class ZodValidationExceptionFilter implements ExceptionFilter {
   constructor() {}
 
   catch(exception: ZodValidationException, host: ArgumentsHost) {
-    const errorMessage = exception
-      .getZodError()
-      .errors.map((error) => `${error.path} ${error.message}`)
-      .join('\n');
-    const zodExeception = new HttpException(errorMessage, 422);
+    const zodExeception = new ValidationException(exception.getZodError());
 
     new AllExceptionsFilter(new DiscordWebhookProvider()).catch(
       zodExeception,
