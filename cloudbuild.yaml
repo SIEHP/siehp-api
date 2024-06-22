@@ -7,6 +7,16 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA']
 
+  # Run database migrations
+  - name: 'gcr.io/cloud-builders/npm'
+    env:
+      - DATABASE_URL=$_DATABASE_URL
+    entrypoint: npx
+    args:
+      - 'prisma'
+      - 'migrate'
+      - 'deploy'
+
   # Deploy
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: '/bin/sh'
