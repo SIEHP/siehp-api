@@ -10,7 +10,12 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { LoginUseCase } from 'src/modules/user/infra/usecases/Login.usecase';
 import { AuthGuard } from '../guards/Jwt.guard';
 import {
@@ -46,6 +51,7 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('user-token')
   @Get('/teste')
   @ApiResponse({
     status: HttpStatus.OK,
