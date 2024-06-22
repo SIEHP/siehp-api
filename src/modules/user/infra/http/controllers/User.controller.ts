@@ -17,6 +17,8 @@ import {
   LoginBodyDTO,
   LoginResponseDTO,
 } from 'src/modules/user/domain/dtos/requests/Login.request.dto';
+import { CheckUserPermissionsUseCase } from '../../usecases/CheckUserPermissions.usecase';
+import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
 
 @Controller('user')
 @ApiTags('User')
@@ -26,7 +28,10 @@ import {
   type: AllExceptionsFilterDTO,
 })
 export class UserController {
-  constructor(private loginUseCase: LoginUseCase) {}
+  constructor(
+    private loginUseCase: LoginUseCase,
+    private checkUserPermissionsUseCase: CheckUserPermissionsUseCase,
+  ) {}
 
   @Post('login')
   @ApiResponse({
@@ -48,7 +53,18 @@ export class UserController {
     type: LoginResponseDTO,
   })
   @ApiOperation({ summary: 'Rota de teste para Guarda de Autenticação' })
-  async getExample(@Req() req: Request, @Res() res: Response) {
+  async testAuth(@Req() req: Request, @Res() res: Response) {
+    const checkUserPermission = await this.checkUserPermissionsUseCase.execute({
+      user_email: req.user.email,
+      neededPermissions: ['ACESSAR_LOGS'],
+    });
+
+    if (!checkUserPermission.hasPermission) {
+      throw new InvalidPermissionsException({
+        permissions: checkUserPermission.notIncludedPermissions,
+      });
+    }
+
     return res.status(HttpStatus.OK).json({ user: req.user });
   }
 }

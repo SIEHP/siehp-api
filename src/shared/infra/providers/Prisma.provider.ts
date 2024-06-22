@@ -1,7 +1,6 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { Enviroment, appConfig } from '../../config/app';
-import { exampleSeeder } from '../db/prisma/seeders/example';
 import { userSeeder } from '../db/prisma/seeders/user';
 
 @Injectable()
@@ -32,7 +31,7 @@ export class PrismaProvider
       throw new Error('This method is not allowed in production enviroment');
     }
 
-    await Promise.all([exampleSeeder(this), userSeeder(this)]);
+    await Promise.all([userSeeder(this)]);
   }
 
   async clear() {

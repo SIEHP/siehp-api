@@ -21,16 +21,15 @@ export const passwordSchema = z
     'Sua senha precisa de no mínimo 1 caractere especial.',
   );
 
-export const emailSchema = z
-  .string({ description: 'Email' })
-  .email('Email inválido.')
-  .min(1)
-  .max(100);
+export const emailSchema = z.string().email('Email inválido.').min(1).max(100);
 
-const LoginBodySchema = z
+export const LoginBodySchema = z
   .object({
     email: emailSchema,
-    password: z.string().min(1).max(100),
+    password: z
+      .string()
+      .min(1)
+      .max(100, 'Sua senha precisa de no máximo 100 caracteres.'),
   })
   .required();
 

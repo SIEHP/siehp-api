@@ -1,7 +1,7 @@
 import { Permissions } from '@prisma/client';
 
 export interface CheckUserPermissionsUseCaseDTO {
-  user_id: number;
+  user_email: string;
   neededPermissions: Permissions[];
 }
 
