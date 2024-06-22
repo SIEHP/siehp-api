@@ -1,6 +1,43 @@
 import { createZodDto } from 'nestjs-zod';
-import { EmailBodySchema } from './email.request.dto';
+import { z } from 'nestjs-zod/z';
 
-const LoginBodySchema = EmailBodySchema;
+export const passwordSchema = z
+  .password({
+    description: 'Senha',
+  })
+  .min(8, 'Sua senha precisa de no mínimo 8 caracteres.')
+  .max(100)
+  .atLeastOne('digit', 'Sua senha precisa de no mínimo 1 número.')
+  .atLeastOne(
+    'lowercase',
+    'Sua senha precisa de no mínimo 1 caractere minúsculo.',
+  )
+  .atLeastOne(
+    'uppercase',
+    'Sua senha precisa de no mínimo 1 caractere maiúsculo.',
+  )
+  .atLeastOne(
+    'special',
+    'Sua senha precisa de no mínimo 1 caractere especial.',
+  );
+
+export const emailSchema = z
+  .string({ description: 'Email' })
+  .email('Email inválido.')
+  .min(1)
+  .max(100);
+
+const LoginBodySchema = z
+  .object({
+    email: emailSchema,
+    password: z.string().min(1).max(100),
+  })
+  .required();
 
 export class LoginBodyDTO extends createZodDto(LoginBodySchema) {}
+
+const LoginResponseSchema = z.object({
+  access_token: z.string(),
+});
+
+export class LoginResponseDTO extends createZodDto(LoginResponseSchema) {}

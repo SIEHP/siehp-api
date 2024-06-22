@@ -1,7 +1,5 @@
-import { LoginBodyDTO } from '../requests/Login.request.dto';
+import { LoginBodyDTO, LoginResponseDTO } from '../requests/Login.request.dto';
 
 export interface LoginUseCaseDTO extends LoginBodyDTO {}
 
-export interface LoginUseCaseResponseDTO {
-  access_token: string;
-}
+export interface LoginUseCaseResponseDTO extends LoginResponseDTO {}
