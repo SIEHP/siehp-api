@@ -29,10 +29,7 @@ export class DiscordWebhookProvider implements DiscordWebhookProviderInterface {
       return;
     }
 
-    if (
-      !discordConfig.ERROR_WEBHOOK_URL ||
-      this.enviroment === Enviroment.DEVELOPMENT
-    ) {
+    if (!discordConfig.ERROR_WEBHOOK_URL) {
       console.log(content);
       return;
     }
@@ -47,10 +44,7 @@ export class DiscordWebhookProvider implements DiscordWebhookProviderInterface {
       return;
     }
 
-    if (
-      !discordConfig.LOG_WEBHOOK_URL ||
-      this.enviroment === Enviroment.DEVELOPMENT
-    ) {
+    if (!discordConfig.LOG_WEBHOOK_URL) {
       console.log(message);
       return;
     }
