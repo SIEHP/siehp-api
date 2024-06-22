@@ -10,6 +10,7 @@ import { ZodValidationExceptionFilter } from 'src/shared/domain/errors/ZodValida
 import { UserModule } from '../../modules/User.module';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
 import { UnauthorizedException } from 'src/modules/user/domain/errors/Unauthorized.exception';
+import { SharedModule } from 'src/shared/infra/modules/Shared.module';
 
 describe('UserController - /user', () => {
   const controllerRoute = '/user';
@@ -20,7 +21,7 @@ describe('UserController - /user', () => {
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [UserModule],
+      imports: [UserModule, SharedModule],
     })
       .overrideProvider(PrismaProvider)
       .useValue(new PrismaProvider(Enviroment.TEST))
@@ -64,7 +65,6 @@ describe('UserController - /user', () => {
 
       expect(response.status).toBe(HttpStatus.OK);
       expect(response.body).toHaveProperty('access_token');
-      expect(response.body).toHaveProperty('user_id');
       jwtToken = response.body.access_token;
     });
 

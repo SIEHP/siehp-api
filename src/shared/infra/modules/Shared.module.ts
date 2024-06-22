@@ -15,6 +15,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import { PrismaProvider } from '../providers/Prisma.provider';
 import { CheckUserPermissionsUseCase } from 'src/modules/user/infra/usecases/CheckUserPermissions.usecase';
 import { PermissionRepository } from 'src/modules/user/infra/db/repositories/Permission.repository';
+import { JwtModule } from '@nestjs/jwt';
 
 @Global()
 @Module({
@@ -22,6 +23,11 @@ import { PermissionRepository } from 'src/modules/user/infra/db/repositories/Per
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
+    }),
+    JwtModule.register({
+      secret: `${process.env.JWT_SECRET}`,
+      signOptions: { expiresIn: '7d' },
+      global: true,
     }),
   ],
   controllers: [ExampleController], // TODO: Remove these examples after fully implemented
