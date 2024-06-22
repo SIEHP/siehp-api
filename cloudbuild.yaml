@@ -11,6 +11,7 @@ steps:
   - name: 'gcr.io/cloud-builders/npm'
     env:
       - DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$BRANCH_NAME?host=/cloudsql/siehp-410023:us-central1:siehp-database-dev
+      - SHADOW_DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$test?host=/cloudsql/siehp-410023:us-central1:siehp-database-dev
     entrypoint: npx
     args:
       - 'prisma'
