@@ -15,7 +15,7 @@ steps:
       - |
         wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
         chmod +x cloud_sql_proxy
-        ./cloud_sql_proxy -instances=YOUR_DATABASE_CONNECTION_NAME=tcp:5432 & sleep 3
+        ./cloud_sql_proxy -instances=siehp-410023:us-central1:siehp-database-dev=tcp:5432 & sleep 3
 
   # Run database migrations
   - name: 'gcr.io/cloud-builders/npm'
