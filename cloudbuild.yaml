@@ -1,63 +1,33 @@
-# steps:
-#   # Download Cloud SQL Proxy
-#   - name: 'gcr.io/cloud-builders/wget'
-#     args: ['https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64', '-O', 'cloud_sql_proxy']
-    
-#   # Make Cloud SQL Proxy executable
-#   - name: 'gcr.io/cloud-builders/docker'
-#     entrypoint: bash
-#     args:
-#       - '-c'
-#       - 'chmod +x cloud_sql_proxy'
+steps:
+  # Build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA', '--file=./Dockerfile-deploy', '.']
 
-#   # Start Cloud SQL Proxy
-#   - name: 'gcr.io/cloud-builders/docker'
-#     entrypoint: bash
-#     args:
-#       - '-c'
-#       - './cloud_sql_proxy -instances=siehp-410023:us-central1:siehp-database-dev=tcp:5432 &'
+  # Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA']
 
-#   # Build
-#   - name: 'gcr.io/cloud-builders/docker'
-#     args: ['build', '-t', 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA', '--file=./Dockerfile-deploy', '.']
+  # Run database migrations
+  - name: 'gcr.io/cloud-builders/npm'
+    env:
+      - DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$BRANCH_NAME?host=/cloudsql/siehp-410023:us-central1:siehp-database-dev
+      - SHADOW_DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$test?host=/cloudsql/siehp-410023:us-central1:siehp-database-dev
+    entrypoint: npx
+    args:
+      - -c
+      - |
+        wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+        chmod +x cloud_sql_proxy
+        ./cloud_sql_proxy -instances=YOUR_DATABASE_CONNECTION_NAME=tcp:5432 & sleep 3
+        npx prisma db push
 
-#   # Push
-#   - name: 'gcr.io/cloud-builders/docker'
-#     args: ['push', 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA']
+  # Deploy
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: '/bin/sh'
+    args: [
+      '-c',
+      'gcloud run deploy $REPO_NAME-$BRANCH_NAME --image gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA --region southamerica-east1 --platform managed --port 8080 --allow-unauthenticated'
+    ]
 
-#   # Run database migrations
-#   - name: 'gcr.io/cloud-builders/npm'
-#     env:
-#       - DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$BRANCH_NAME?host=/cloudsql/siehp-410023:us-central1:siehp-database-dev
-#       - SHADOW_DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$test?host=/cloudsql/siehp-410023:us-central1:siehp-database-dev
-#     entrypoint: npx
-#     args:
-#       - 'prisma'
-#       - 'migrate'
-#       - 'deploy'
-
-#   # Deploy
-#   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-#     entrypoint: '/bin/sh'
-#     args: [
-#       '-c',
-#       'gcloud run deploy $REPO_NAME-$BRANCH_NAME --image gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA --region southamerica-east1 --platform managed --port 8080 --allow-unauthenticated'
-#     ]
-
-# images:
-#   - 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA'
-
-
-# Check Cloud SQL Proxy status
-- name: 'gcr.io/cloud-builders/docker'
-  entrypoint: bash
-  args:
-    - '-c'
-    - 'ps aux | grep cloud_sql_proxy'
-
-# Test database connectivity
-- name: 'gcr.io/cloud-builders/docker'
-  entrypoint: bash
-  args:
-    - '-c'
-    - 'apt-get update && apt-get install -y postgresql-client && psql "host=localhost port=5432 dbname=$BRANCH_NAME user=admin password=SIEHPDATABASE2024"'
+images:
+  - 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA'
