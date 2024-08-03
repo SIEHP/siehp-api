@@ -10,8 +10,8 @@ steps:
   # Run database migrations
   - name: 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA'
     env:
-      - DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$BRANCH_NAME?host=127.0.0.1:5432
-      - SHADOW_DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/test?host=127.0.0.1:5432
+      - DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$BRANCH_NAME?host=127.0.0.1
+      - SHADOW_DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/test?host=127.0.0.1
     entrypoint: sh  
     args:
       - -c
