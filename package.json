@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.3.0",
     "@prisma/client": "^5.15.0",
+    "@scalar/nestjs-api-reference": "^0.3.132",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
     "nestjs-zod": "^3.0.0",
