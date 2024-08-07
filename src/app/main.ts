@@ -8,6 +8,7 @@ import { AllExceptionsFilter } from 'src/shared/domain/errors/AllException.filte
 import { ZodValidationExceptionFilter } from 'src/shared/domain/errors/ZodValidationException.filter';
 import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
 import { AppModule } from './app.module';
+import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -19,7 +20,16 @@ async function bootstrap() {
   patchNestJsSwagger();
 
   const sharedDocument = SwaggerModule.createDocument(app, sharedSwaggerConfig);
-  SwaggerModule.setup('swagger', app, sharedDocument);
+
+  app.use(
+    '/docs',
+    apiReference({
+      theme: 'deepSpace',
+      spec: {
+        content: sharedDocument,
+      },
+    }),
+  );
 
   await app.listen(appConfig.PORT);
 }
