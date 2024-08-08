@@ -14,9 +14,10 @@ import { SharedModule } from 'src/shared/infra/modules/Shared.module';
 import { LoginBodySchema } from 'src/modules/user/domain/dtos/requests/Login.request.dto';
 import { ZodError } from 'zod';
 import { ValidationException } from 'src/shared/domain/errors/Validation.exception';
-import { SALT } from 'src/shared/infra/utils/constants';
-import * as bcrypt from 'bcrypt';
 import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
+import { userSeeder } from '../../db/prisma/seeders/user';
+import { SALT } from '../../utils/constants';
+import * as bcrypt from 'bcrypt';
 
 describe('UserController - /user', () => {
   const controllerRoute = '/user';
@@ -50,11 +51,11 @@ describe('UserController - /user', () => {
   });
 
   beforeEach(async () => {
-    await prisma.seed();
+    await prisma.seed([userSeeder]);
   });
 
   afterEach(async () => {
-    await prisma.clear();
+    await prisma.clear('all');
   });
 
   describe('POST /login', () => {

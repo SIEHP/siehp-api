@@ -1,7 +1,6 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { Enviroment, appConfig } from '../../config/app';
-import { userSeeder } from '../db/prisma/seeders/user';
 
 @Injectable()
 export class PrismaProvider
@@ -26,33 +25,34 @@ export class PrismaProvider
     await this.$disconnect();
   }
 
-  async seed() {
+  async seed(seeders: ((prisma: PrismaClient) => Promise<void>)[]) {
     if (this.enviroment === Enviroment.PRODUCTION) {
       throw new Error('This method is not allowed in production enviroment');
     }
 
-    await Promise.all([userSeeder(this)]);
+    for (const seeder of seeders) {
+      await seeder(this);
+    }
   }
 
-  async clear() {
+  async clear(models: string[] | 'all') {
     if (this.enviroment === Enviroment.PRODUCTION) {
       throw new Error('This method is not allowed in production enviroment');
     }
 
-    await this.$queryRawUnsafe(
-      'TRUNCATE TABLE "user_permissions" RESTART IDENTITY CASCADE;',
-    );
+    const allModels = [
+      'user_permissions',
+      'users',
+      'included_permissions',
+      'permissions',
+    ];
 
-    await this.$queryRawUnsafe(
-      'TRUNCATE TABLE "users" RESTART IDENTITY CASCADE;',
-    );
+    const modelsToClear = models === 'all' ? allModels : models;
 
-    await this.$queryRawUnsafe(
-      'TRUNCATE TABLE "included_permissions" RESTART IDENTITY CASCADE;',
-    );
-
-    await this.$queryRawUnsafe(
-      'TRUNCATE TABLE "permissions" RESTART IDENTITY CASCADE;',
-    );
+    for (const model of modelsToClear) {
+      await this.$queryRawUnsafe(
+        `TRUNCATE TABLE "${model}" RESTART IDENTITY CASCADE;`,
+      );
+    }
   }
 }
