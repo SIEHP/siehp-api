@@ -24,6 +24,7 @@ import {
 } from 'src/modules/user/domain/dtos/requests/Login.request.dto';
 import { CheckUserPermissionsUseCase } from '../../usecases/CheckUserPermissions.usecase';
 import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
+import { TestAuthResponseDTO } from 'src/modules/user/domain/dtos/requests/TestAuth.request.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -56,7 +57,7 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Usuário autenticado',
-    type: LoginResponseDTO,
+    type: TestAuthResponseDTO,
   })
   @ApiOperation({ summary: 'Rota de teste para Guarda de Autenticação' })
   async testAuth(@Req() req: Request, @Res() res: Response) {
