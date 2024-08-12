@@ -3,8 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PrismaProvider } from '../providers/Prisma.provider';
-import { CheckUserPermissionsUseCase } from 'src/modules/user/infra/usecases/CheckUserPermissions.usecase';
-import { PermissionRepository } from 'src/modules/user/infra/db/repositories/Permission.repository';
 import { JwtModule } from '@nestjs/jwt';
 
 @Global()
@@ -22,8 +20,6 @@ import { JwtModule } from '@nestjs/jwt';
   ],
   controllers: [],
   providers: [
-    CheckUserPermissionsUseCase,
-    PermissionRepository,
     PrismaProvider,
     {
       provide: PrismaProvider,
