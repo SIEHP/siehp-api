@@ -1,4 +1,3 @@
-import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { UseCaseInterface } from 'src/shared/domain/protocols/UseCase.protocol';
 import {
@@ -9,11 +8,13 @@ import { UserRepository } from '../db/repositories/User.repository';
 import { NotFoundUserException } from '../../domain/errors/NotFoundUser.exception';
 import { InvalidPasswordException } from '../../domain/errors/InvalidPassword.exception';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../services/User.service';
 
 @Injectable()
 export class LoginUseCase implements UseCaseInterface {
   constructor(
     private userRepository: UserRepository,
+    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
@@ -27,7 +28,10 @@ export class LoginUseCase implements UseCaseInterface {
       throw new NotFoundUserException();
     }
 
-    const checkPassword = await bcrypt.compare(password, user.password);
+    const checkPassword = await this.userService.comparePassword({
+      password,
+      hash: user.password,
+    });
 
     if (!checkPassword) {
       throw new InvalidPasswordException();

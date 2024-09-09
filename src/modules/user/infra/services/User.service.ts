@@ -1,22 +1,27 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
-import { UseCaseInterface } from 'src/shared/domain/protocols/UseCase.protocol';
 import {
-  CheckUserPermissionsUseCaseDTO,
-  CheckUserPermissionsUseCaseResponseDTO,
-} from '../../domain/dtos/usecases/CheckUserPermissions.usecase.dto';
-import { PermissionRepository } from '../db/repositories/Permission.repository';
+  CheckUserPermissionsRequestDTO,
+  CheckUserPermissionsResponseDTO,
+} from '../../domain/dtos/services/User.service.dto';
 import { Permissions } from '@prisma/client';
+import { UserServiceInterface } from '../../domain/services/User.service';
+import { UserRepository } from '../db/repositories/User.repository';
 
 @Injectable()
-export class CheckUserPermissionsUseCase implements UseCaseInterface {
-  constructor(private permissionRepository: PermissionRepository) {}
+export class UserService implements UserServiceInterface {
+  constructor(private userRepository: UserRepository) {}
 
-  async execute({
+  async comparePassword({ password, hash }) {
+    return await bcrypt.compare(password, hash);
+  }
+
+  async checkUserPermissions({
     user_email,
     neededPermissions,
-  }: CheckUserPermissionsUseCaseDTO): Promise<CheckUserPermissionsUseCaseResponseDTO> {
+  }: CheckUserPermissionsRequestDTO): Promise<CheckUserPermissionsResponseDTO> {
     const userPermissions = (
-      await this.permissionRepository.findPermissionsByUserEmail({
+      await this.userRepository.findPermissionsByUserEmail({
         user_email,
       })
     ).permissions;

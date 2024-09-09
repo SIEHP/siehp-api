@@ -98,7 +98,7 @@
     "testEnvironment": "node"
   },
   "prisma": {
-    "schema": "src/shared/infra/db/prisma/schema.prisma",
+    "schema": "src/",
     "seed": "ts-node-dev --inspect --transpile-only --ignore-watch node_modules src/shared/infra/db/prisma/seeders/index.ts"
   }
 }

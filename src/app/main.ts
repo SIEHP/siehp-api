@@ -28,6 +28,10 @@ async function bootstrap() {
       spec: {
         content: sharedDocument,
       },
+      metaData: {
+        title: 'SIEHP API Docs',
+        description: 'API Documentation for SIEHP',
+      },
     }),
   );
 

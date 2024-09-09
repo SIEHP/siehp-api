@@ -22,8 +22,9 @@ import {
   LoginBodyDTO,
   LoginResponseDTO,
 } from 'src/modules/user/domain/dtos/requests/Login.request.dto';
-import { CheckUserPermissionsUseCase } from '../../usecases/CheckUserPermissions.usecase';
 import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
+import { TestAuthResponseDTO } from 'src/modules/user/domain/dtos/requests/TestAuth.request.dto';
+import { UserService } from '../../services/User.service';
 
 @Controller('user')
 @ApiTags('User')
@@ -35,7 +36,7 @@ import { InvalidPermissionsException } from 'src/modules/user/domain/errors/Inva
 export class UserController {
   constructor(
     private loginUseCase: LoginUseCase,
-    private checkUserPermissionsUseCase: CheckUserPermissionsUseCase,
+    private userService: UserService,
   ) {}
 
   @Post('login')
@@ -56,11 +57,11 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Usuário autenticado',
-    type: LoginResponseDTO,
+    type: TestAuthResponseDTO,
   })
   @ApiOperation({ summary: 'Rota de teste para Guarda de Autenticação' })
   async testAuth(@Req() req: Request, @Res() res: Response) {
-    const checkUserPermission = await this.checkUserPermissionsUseCase.execute({
+    const checkUserPermission = await this.userService.checkUserPermissions({
       user_email: req.user.email,
       neededPermissions: ['ACESSAR_LOGS'],
     });
