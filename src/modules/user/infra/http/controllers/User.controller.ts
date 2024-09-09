@@ -64,6 +64,7 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Rota de teste para Guarda de Autenticação' })
   async testAuth(@Req() req: Request, @Res() res: Response) {
+    // TODO: REMOVE BEFORE PRODUCTION
     const checkUserPermission = await this.userService.checkUserPermissions({
       user_email: req.user.email,
       neededPermissions: ['ACESSAR_LOGS'],

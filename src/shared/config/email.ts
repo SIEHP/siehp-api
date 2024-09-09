@@ -30,7 +30,7 @@ try {
     transport: process.env.EMAIL_TRANSPORT_HOST
       ? {
           host: process.env.EMAIL_TRANSPORT_HOST,
-          port: process.env.EMAIL_TRANSPORT_PORT,
+          port: Number(process.env.EMAIL_TRANSPORT_PORT),
           auth: {
             user: process.env.EMAIL_TRANSPORT_AUTH_USER,
             pass: process.env.EMAIL_TRANSPORT_AUTH_PASS,
