@@ -9,12 +9,18 @@ import { ZodValidationExceptionFilter } from 'src/shared/domain/errors/ZodValida
 import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
 import { AppModule } from './app.module';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const logger = new LoggerProvider(new DiscordWebhookProvider());
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger,
+  });
+
   app.useGlobalFilters(
-    new AllExceptionsFilter(new DiscordWebhookProvider()),
-    new ZodValidationExceptionFilter(),
+    new AllExceptionsFilter(logger),
+    new ZodValidationExceptionFilter(logger),
   );
 
   patchNestJsSwagger();

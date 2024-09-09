@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
+import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter.dto';
 import {
   ApiBearerAuth,
   ApiOperation,

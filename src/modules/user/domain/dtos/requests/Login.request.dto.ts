@@ -6,7 +6,7 @@ export const passwordSchema = z
     description: 'Senha',
   })
   .min(8, 'Sua senha precisa de no mínimo 8 caracteres.')
-  .max(100)
+  .max(100, 'Sua senha precisa ser no máximo 100 caracteres.')
   .atLeastOne('digit', 'Sua senha precisa de no mínimo 1 número.')
   .atLeastOne(
     'lowercase',
@@ -21,15 +21,21 @@ export const passwordSchema = z
     'Sua senha precisa de no mínimo 1 caractere especial.',
   );
 
-export const emailSchema = z.string().email('Email inválido.').min(1).max(100);
+export const emailSchema = z
+  .string({
+    description: 'Email',
+  })
+  .email('Email inválido.')
+  .min(1, ' ')
+  .max(100, ' ');
 
 export const LoginBodySchema = z
   .object({
     email: emailSchema,
     password: z
-      .string()
-      .min(1)
-      .max(100, 'Sua senha precisa de no máximo 100 caracteres.'),
+      .string({ description: 'Senha' })
+      .min(1, 'Senha inválida.')
+      .max(100, 'Senha inválida.'),
   })
   .required();
 
