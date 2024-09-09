@@ -27,7 +27,8 @@ export const emailSchema = z
   })
   .email('Email inválido.')
   .min(1, ' ')
-  .max(100, ' ');
+  .max(100, ' ')
+  .default('test1@email.com');
 
 export const LoginBodySchema = z
   .object({
@@ -35,7 +36,8 @@ export const LoginBodySchema = z
     password: z
       .string({ description: 'Senha' })
       .min(1, 'Senha inválida.')
-      .max(100, 'Senha inválida.'),
+      .max(100, 'Senha inválida.')
+      .default('Coxinh@123'),
   })
   .required();
 

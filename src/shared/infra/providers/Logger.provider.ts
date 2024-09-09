@@ -12,7 +12,7 @@ export class LoggerProvider implements LoggerService {
   /**
    * Write a 'log' level log.
    */
-  async log(message: any) {
+  async log(message: string) {
     await this.discordWebhookProvider.log(message);
   }
 

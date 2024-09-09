@@ -1,8 +1,9 @@
-import { NotSentEmailExceptionDTO } from '../dtos/errors/NotSentEmail.exception.dto';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class NotSentEmailException extends Error {
-  constructor({ error, subject, to }: NotSentEmailExceptionDTO) {
-    const errorMessage = `Erro ao enviar email \n Não foi possível enviar o email: ${subject} para: ${to} \n Erro: ${error.message}`;
-    super(errorMessage);
+export class NotSentEmailException extends HttpException {
+  constructor() {
+    const errorMessage = 'Erro ao enviar email.\n Tente novamente mais tarde.';
+
+    super(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

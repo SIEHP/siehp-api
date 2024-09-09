@@ -14,9 +14,7 @@ import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
 async function bootstrap() {
   const logger = new LoggerProvider(new DiscordWebhookProvider());
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    logger,
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalFilters(
     new AllExceptionsFilter(logger),

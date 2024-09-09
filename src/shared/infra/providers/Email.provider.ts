@@ -6,74 +6,59 @@ import { emailConfig } from 'src/shared/config/email';
 import {
   ParseTemplateDTO,
   SendDTO,
-  ServiceDTO,
 } from 'src/shared/domain/dtos/providers/Email.provider.dto';
 import { NotSentEmailException } from 'src/shared/domain/errors/NotSentEmail.exception';
 import { EmailProviderInterface } from 'src/shared/domain/providers/Email.provider';
+import { LoggerProvider } from './Logger.provider';
+import { appConfig, Enviroment } from 'src/shared/config/app';
 
 @Injectable()
 export class EmailProvider implements EmailProviderInterface {
-  client: Transporter;
+  private client: Transporter;
 
-  constructor() {}
+  constructor(private readonly loggerProvider: LoggerProvider) {}
 
-  public async send({ subject, templateData, to }: SendDTO): Promise<boolean> {
-    return true;
-  }
-
-  private parse({ file, variables }: ParseTemplateDTO) {
-    const templateFileContent = readFileSync(file, 'utf-8');
-
-    const parseTemplate = Handlebars.compile(templateFileContent);
-
-    return parseTemplate(variables);
-  }
-
-  private async sendEmailToService(
-    { host, password, port, username }: ServiceDTO,
-    { to, subject, templateData }: SendDTO,
-  ): Promise<boolean> {
+  public async send({ subject, templateData, to }: SendDTO): Promise<void> {
     const html = this.parse(templateData);
 
     try {
       this.client = createTransport(
         {
-          host: host,
-          port: port,
-          auth: {
-            user: username,
-            pass: password,
-          },
+          ...emailConfig.transport,
         },
         {
           from: {
-            address: emailConfig.from,
-            name: emailConfig.name,
+            address: emailConfig.defaults.from.address,
+            name: emailConfig.defaults.from.name,
           },
         },
       );
 
       await this.client.sendMail({
         from: {
-          name: emailConfig.name,
-          address: emailConfig.from,
+          address: emailConfig.defaults.from.address,
+          name: emailConfig.defaults.from.name,
         },
         to,
         subject,
         html,
       });
-
-      return true;
     } catch (error) {
-      if (error instanceof Error) {
-        console.log(
-          new NotSentEmailException({
-            error,
-            subject,
-            to,
-          }).message,
-        );
+      await this.loggerProvider.log(
+        `to: ${to} \nsubject: ${subject} \nhtml: ${html}`,
+      );
+
+      if (appConfig.NODE_ENV === Enviroment.PRODUCTION) {
+        throw new NotSentEmailException();
       }
     }
+  }
+
+  private parse({ filePath, variables }: ParseTemplateDTO) {
+    const templateFileContent = readFileSync(filePath, 'utf-8');
+
+    const parseTemplate = Handlebars.compile(templateFileContent);
+
+    return parseTemplate(variables);
   }
 }

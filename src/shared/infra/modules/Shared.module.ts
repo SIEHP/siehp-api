@@ -4,6 +4,9 @@ import { APP_PIPE } from '@nestjs/core';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PrismaProvider } from '../providers/Prisma.provider';
 import { JwtModule } from '@nestjs/jwt';
+import { EmailProvider } from '../providers/Email.provider';
+import { LoggerProvider } from '../providers/Logger.provider';
+import { DiscordWebhookProvider } from '../providers/DiscordWebhook.provider';
 
 @Global()
 @Module({
@@ -29,12 +32,25 @@ import { JwtModule } from '@nestjs/jwt';
       provide: APP_PIPE,
       useClass: ZodValidationPipe,
     },
+    LoggerProvider,
+    DiscordWebhookProvider,
+    {
+      provide: DiscordWebhookProvider,
+      useValue: new DiscordWebhookProvider(),
+    },
+    EmailProvider,
   ],
   exports: [
     {
       provide: PrismaProvider,
       useValue: new PrismaProvider(),
     },
+    LoggerProvider,
+    {
+      provide: DiscordWebhookProvider,
+      useValue: new DiscordWebhookProvider(),
+    },
+    EmailProvider,
   ],
 })
 export class SharedModule implements NestModule {
