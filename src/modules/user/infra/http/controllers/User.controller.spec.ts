@@ -18,6 +18,7 @@ import { InvalidPermissionsException } from 'src/modules/user/domain/errors/Inva
 import { userSeeder } from '../../db/prisma/seeders/user';
 import { SALT } from '../../utils/constants';
 import * as bcrypt from 'bcrypt';
+import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
 
 describe('UserController - /user', () => {
   const controllerRoute = '/user';
@@ -38,10 +39,14 @@ describe('UserController - /user', () => {
 
     prisma = moduleRef.get(PrismaProvider);
 
+    const logger = new LoggerProvider(
+      new DiscordWebhookProvider(Enviroment.TEST),
+    );
+
     app = moduleRef.createNestApplication<NestExpressApplication>();
     app.useGlobalFilters(
-      new AllExceptionsFilter(new DiscordWebhookProvider(Enviroment.TEST)),
-      new ZodValidationExceptionFilter(),
+      new AllExceptionsFilter(logger),
+      new ZodValidationExceptionFilter(logger),
     );
     await app.init();
   });

@@ -1,4 +1,4 @@
-import { AllExceptionsFilterDTO } from '../dtos/errors/AllException.filter';
+import { AllExceptionsFilterDTO } from '../dtos/errors/AllException.filter.dto';
 
 export interface DiscordWebhookProviderInterface {
   error(data: AllExceptionsFilterDTO): Promise<void>;

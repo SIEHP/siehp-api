@@ -5,13 +5,12 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
+import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  constructor(
-    private readonly discordWebhookProvider: DiscordWebhookProvider,
-  ) {}
+  constructor(private readonly loggerProvider: LoggerProvider) {}
+
   async catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
@@ -32,7 +31,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       path: request.url,
     };
 
-    await this.discordWebhookProvider.error(responseJSON);
+    await this.loggerProvider.error(responseJSON);
 
     response.status(status).json(responseJSON);
   }

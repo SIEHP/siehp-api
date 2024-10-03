@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { discordConfig } from 'src/shared/config/discord';
-import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter';
+import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter.dto';
 import { DiscordWebhookProviderInterface } from 'src/shared/domain/providers/DiscordWebhook.provider';
 import { getTimestampIcon } from '../utils/functions';
 import { Enviroment, appConfig } from 'src/shared/config/app';
