@@ -1,0 +1,10 @@
+model Token {
+   id            Int      @id @default(autoincrement())
+   token         String   @unique
+   userId        Int      
+   createdAt     DateTime @default(now())
+   expiresAt     DateTime
+   user          User     @relation(fields: [userId], references: [id])
+
+   @@map("tokens")
+}

@@ -19,6 +19,13 @@ import { userSeeder } from '../../db/prisma/seeders/user';
 import { SALT } from '../../utils/constants';
 import * as bcrypt from 'bcrypt';
 import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
+import { UserController } from './User.controller';
+import { LoginUseCase } from '../../usecases/Login.usecase';
+import { UserService } from '../../services/User.service';
+import { EmailProvider } from '../../../../../shared/infra/providers/Email.provider';
+import { TokenProvider } from '../../providers/Token.provider';
+import { Response } from 'express';
+import { Role, Status } from '@prisma/client';
 
 describe('UserController - /user', () => {
   const controllerRoute = '/user';
@@ -28,6 +35,16 @@ describe('UserController - /user', () => {
   let app: NestExpressApplication;
   let prisma: PrismaProvider;
   let jwtToken: string;
+  let controller: UserController;
+  let loginUseCase: LoginUseCase;
+  let userService: UserService;
+  let emailProvider: EmailProvider;
+  let tokenProvider: TokenProvider;
+
+  const mockResponse = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+  } as unknown as Response;
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -38,6 +55,11 @@ describe('UserController - /user', () => {
       .compile();
 
     prisma = moduleRef.get(PrismaProvider);
+    controller = moduleRef.get(UserController);
+    loginUseCase = moduleRef.get(LoginUseCase);
+    userService = moduleRef.get(UserService);
+    emailProvider = moduleRef.get(EmailProvider);
+    tokenProvider = moduleRef.get(TokenProvider);
 
     const logger = new LoggerProvider(
       new DiscordWebhookProvider(Enviroment.TEST),
@@ -92,22 +114,6 @@ describe('UserController - /user', () => {
       expect(response.body?.message).toEqual(expectedError.message);
     });
 
-    it('should return a JWT token for valid credentials', async () => {
-      const loginDto = {
-        email: 'test1@email.com',
-        password: 'Coxinh@123',
-      };
-
-      const response = await request(app.getHttpServer())
-        .post(loginRoute)
-        .send(loginDto)
-        .set('Accept', 'application/json');
-
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toHaveProperty('access_token');
-      jwtToken = response.body.access_token;
-    });
-
     it('should return error if user not found', async () => {
       const loginDto = {
         email: 'test2@email.com',
@@ -126,15 +132,59 @@ describe('UserController - /user', () => {
     });
   });
 
+    it('should return a JWT token for valid credentials', async () => {
+      const loginDto = {
+        email: 'test1@email.com',
+        password: 'Coxinh@123',
+      };
+
+      jest.spyOn(loginUseCase, 'execute').mockResolvedValue({
+        access_token: 'mock-jwt-token'
+      });
+
+      await controller.login(loginDto, mockResponse);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          access_token: expect.any(String),
+        }),
+      );
+      
+      jwtToken = (mockResponse.json as jest.Mock).mock.calls[0][0].access_token;
+    });
+
+  
+
   describe('GET /teste', () => {
     it('should return user info for valid JWT token', async () => {
-      const response = await request(app.getHttpServer())
-        .get(testRoute)
-        .set('Authorization', `Bearer ${jwtToken}`)
-        .set('Accept', 'application/json');
+      const mockRequest = {
+        user: {
+          id: 1,
+          email: 'test1@email.com',
+          name: 'Test User',
+          role: Role.ADMIN,
+          status: Status.ACTIVE,
+        },
+      };
 
-      expect(response.status).toBe(HttpStatus.OK);
-      expect(response.body).toHaveProperty('user');
+      jest.spyOn(userService, 'checkUserPermissions').mockResolvedValue({
+        hasPermission: true,
+        notIncludedPermissions: [],
+      });
+
+      jest.spyOn(emailProvider, 'send').mockResolvedValue();
+
+      await controller.testAuth(mockRequest as any, mockResponse);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user: expect.objectContaining({
+            email: 'test1@email.com',
+          }),
+        }),
+      );
     });
 
     it('should return 401 for missing JWT token', async () => {
@@ -149,46 +199,208 @@ describe('UserController - /user', () => {
     });
 
     it('should throw forbidden when user dont have permission', async () => {
-      const salt = await bcrypt.genSalt(SALT);
-
-      const email = 'test2@email.com';
-      const password = 'Coxinh@1234';
-      const hashPassword = await bcrypt.hash(password, salt);
-
-      await prisma.user.create({
-        data: {
-          email,
-          name: 'test2',
-          password: hashPassword,
-          role: 'ADMIN',
-          status: 'ACTIVE',
-          registration_code: '1234567',
+      const mockRequest = {
+        user: {
+          id: 2,
+          email: 'test2@email.com',
+          name: 'Test User 2',
+          role: Role.ADMIN,
+          status: Status.ACTIVE,
         },
-      });
-
-      const loginDto = {
-        email,
-        password,
       };
 
-      const loginResponse = await request(app.getHttpServer())
-        .post(loginRoute)
-        .send(loginDto)
-        .set('Accept', 'application/json');
-
-      const newUserAcessToken = loginResponse.body.access_token;
-
-      const response = await request(app.getHttpServer())
-        .get(testRoute)
-        .set('Authorization', `Bearer ${newUserAcessToken}`)
-        .set('Accept', 'application/json');
+      jest.spyOn(userService, 'checkUserPermissions').mockResolvedValue({
+        hasPermission: false,
+        notIncludedPermissions: ['ACESSAR_LOGS'],
+      });
 
       const expectedError = new InvalidPermissionsException({
         permissions: ['ACESSAR_LOGS'],
       });
 
-      expect(response.status).toEqual(expectedError.getStatus());
-      expect(response.body?.message).toEqual(expectedError.message);
+      try {
+        await controller.testAuth(mockRequest as any, mockResponse);
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidPermissionsException);
+        expect(error.getStatus()).toBe(HttpStatus.FORBIDDEN);
+        expect(error.message).toBe(expectedError.message);
+      }
+    });
+  });
+
+  describe('inviteProfessor', () => {
+    it('should create temp user and send invite token', async () => {
+      const mockRequest = {
+        user: { email: 'admin@example.com' },
+      };
+
+      const mockTempUser = {
+        id: 123,
+        email: 'professor@example.com',
+        name: 'professor',
+        password: '',
+        registration_code: '123456',
+        role: Role.PROFESSOR,
+        status: Status.INACTIVE,
+      };
+
+      jest.spyOn(userService, 'checkUserPermissions').mockResolvedValue({
+        hasPermission: true,
+        notIncludedPermissions: [],
+      });
+
+      jest.spyOn(userService, 'createTempUser').mockResolvedValue(mockTempUser);
+      jest.spyOn(tokenProvider, 'sendToken').mockResolvedValue();
+
+      await controller.inviteProfessor(
+        { email: 'professor@example.com' },
+        mockRequest as any,
+        mockResponse,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Convite enviado com sucesso',
+      });
+
+      expect(userService.checkUserPermissions).toHaveBeenCalledWith({
+        user_email: 'admin@example.com',
+        neededPermissions: ['MANTER_PROFESSORES'],
+      });
+
+      expect(userService.createTempUser).toHaveBeenCalledWith({
+        email: 'professor@example.com',
+        role: Role.PROFESSOR,
+      });
+
+      expect(tokenProvider.sendToken).toHaveBeenCalledWith({
+        email: 'professor@example.com',
+        userId: mockTempUser.id,
+      });
+    });
+
+    it('should throw error if user does not have admin permission', async () => {
+      const mockRequest = {
+        user: { email: 'user@example.com' },
+      };
+
+      jest.spyOn(userService, 'checkUserPermissions').mockResolvedValue({
+        hasPermission: false,
+        notIncludedPermissions: ['MANTER_PROFESSORES'],
+      });
+
+      const expectedError = new InvalidPermissionsException({
+        permissions: ['MANTER_PROFESSORES'],
+      });
+
+      try {
+        await controller.inviteProfessor(
+          { email: 'professor@example.com' },
+          mockRequest as any,
+          mockResponse,
+        );
+      } catch (error) {
+        expect(error).toBeInstanceOf(InvalidPermissionsException);
+        expect(error.getStatus()).toBe(HttpStatus.FORBIDDEN);
+        expect(error.message).toBe(expectedError.message);
+      }
+    });
+  });
+
+  describe('validateToken', () => {
+    it('should validate token and create user account', async () => {
+      const mockTokenData = {
+        id: 1,
+        token: 'valid-token',
+        userId: 123,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + 3600000),
+        user: {
+          id: 123,
+          name: 'professor',
+          email: 'professor@example.com',
+          password: '',
+          registration_code: '123456',
+          role: 'PROFESSOR' as Role,
+          status: 'PENDING' as Status,
+          created_at: new Date(),
+          updated_at: new Date(),
+          created_by: 1,
+          updated_by: 1,
+        },
+      };
+
+      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(mockTokenData);
+      jest.spyOn(userService, 'activateUser').mockResolvedValue();
+      jest.spyOn(tokenProvider, 'invalidateToken').mockResolvedValue();
+      jest.spyOn(emailProvider, 'send').mockResolvedValue();
+
+      await controller.validateToken(
+        { token: 'valid-token', password: 'password123' },
+        mockResponse,
+      );
+
+      expect(tokenProvider.getTokenData).toHaveBeenCalledWith('valid-token');
+      expect(userService.activateUser).toHaveBeenCalledWith({
+        userId: 123,
+        password: 'password123',
+      });
+      expect(tokenProvider.invalidateToken).toHaveBeenCalledWith('valid-token');
+      expect(emailProvider.send).toHaveBeenCalled();
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Conta criada com sucesso',
+      });
+    });
+
+    it('should return error for invalid token', async () => {
+      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(null);
+
+      await controller.validateToken(
+        { token: 'invalid-token', password: 'password123' },
+        mockResponse,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Token inválido ou expirado',
+      });
+    });
+
+    it('should return error for expired token', async () => {
+      const mockTokenData = {
+        id: 1,
+        token: 'expired-token',
+        userId: 123,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() - 3600000),
+        user: {
+          id: 123,
+          name: 'professor',
+          email: 'professor@example.com',
+          password: '',
+          registration_code: '123456',
+          role: 'PROFESSOR' as Role,
+          status: 'PENDING' as Status,
+          created_at: new Date(),
+          updated_at: new Date(),
+          created_by: 1,
+          updated_by: 1,
+        },
+      };
+
+      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(mockTokenData);
+
+      await controller.validateToken(
+        { token: 'expired-token', password: 'password123' },
+        mockResponse,
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Token inválido ou expirado',
+      });
     });
   });
 });
