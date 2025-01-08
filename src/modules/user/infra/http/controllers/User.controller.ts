@@ -149,7 +149,7 @@ export class UserController {
     @Body() validateTokenDto : ValidateTokenBodyDTO,
     @Res() res: Response,
   ) {
-    // Busca o token no banco
+    
     const tokenData = await this.tokenProvider.getTokenData(validateTokenDto.token);
 
     if (!tokenData || tokenData.expiresAt < new Date()) {
@@ -158,16 +158,15 @@ export class UserController {
       });
     }
 
-    // Atualiza o usuário com a senha
+    
     await this.userService.activateUser({
       userId: tokenData.userId,
       password: validateTokenDto.password,
     });
 
-    // Invalida o token
     await this.tokenProvider.invalidateToken(validateTokenDto.token);
 
-    // Envia email de confirmação
+   
     const templatePath = join(
       process.cwd(),
       'src/modules/user/infra/views/emails/success.hbs',

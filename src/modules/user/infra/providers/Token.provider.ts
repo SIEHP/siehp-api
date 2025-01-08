@@ -6,7 +6,7 @@ import { SendTokenDTO } from 'src/modules/user/domain/dtos/services/Token.Servic
 import { EmailProvider } from '../../../../shared/infra/providers/Email.provider';
 import { PrismaProvider } from '../../../../shared/infra/providers/Prisma.provider';
 import { join } from 'path';
-import { addHours } from 'date-fns';
+import { addDays, addHours } from 'date-fns';
 
 @Injectable()
 export class TokenProvider implements TokenProviderInterface {
@@ -62,7 +62,7 @@ export class TokenProvider implements TokenProviderInterface {
 
   async sendToken(data: SendTokenDTO): Promise<void> {
     const token = this.generateToken();
-    const expiresAt = addHours(new Date(), 24); // Token expira em 24h
+    const expiresAt = addDays(new Date(), 7); 
 
     // Criar ou atualizar token no banco
     await this.prisma.token.create({
