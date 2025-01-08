@@ -2,11 +2,17 @@ import { Injectable } from '@nestjs/common';
 import {
   FindPermissionsByUserEmailDTO,
   FindPermissionsByUserEmailResponseDTO,
+
 } from 'src/modules/user/domain/dtos/repositories/Permission.repository.dto';
 import {
   FindUserByEmailDTO,
   FindUserByEmailResponseDTO,
+  UpdateUserDTO,
+  UpdateUserResponseDTO,
+  createUserDTO,
+  CreateTempUserResponseDTO
 } from 'src/modules/user/domain/dtos/repositories/User.repository.dto';
+import { EmailAlreadyInUseExpection } from 'src/modules/user/domain/errors/EmailAlreadyInUse.expection';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
 import { UserRepositoryInterface } from 'src/modules/user/domain/repositories/User.repository';
 import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';
@@ -69,5 +75,54 @@ export class UserRepository implements UserRepositoryInterface {
     });
 
     return user;
+  }
+
+  async create({
+    email, 
+    role, 
+    status, 
+    name, 
+    registration_code,
+  }: createUserDTO): Promise<CreateTempUserResponseDTO> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new EmailAlreadyInUseExpection();
+    }
+
+
+    return await this.prisma.user.create({
+      data: {
+        email,
+        role,
+        status,
+        name,
+        registration_code,
+        password: '',
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        registration_code: true,
+        role: true,
+        status: true,
+      },
+    });
+  }
+
+  async update({
+    id,
+   data
+  }: UpdateUserDTO): Promise<UpdateUserResponseDTO> {
+    return await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data,
+    });
   }
 }

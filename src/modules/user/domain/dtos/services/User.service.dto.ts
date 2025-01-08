@@ -1,4 +1,4 @@
-import { Permissions } from '@prisma/client';
+import { Permissions, Role } from '@prisma/client';
 
 export interface CheckUserPermissionsRequestDTO {
   user_email: string;
@@ -14,3 +14,20 @@ export interface ComparePasswordRequestDTO {
   password: string;
   hash: string;
 }
+
+export interface CreateTempUserRequestDTO {
+  email: string;
+  role: Role;
+}
+
+export interface CreateTempUserResponseDTO {
+  id: number;
+  email: string;
+}
+
+export interface ActivateUserRequestDTO {
+  userId: number;
+  password: string;
+}
+
+

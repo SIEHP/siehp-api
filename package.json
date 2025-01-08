@@ -34,6 +34,7 @@
     "@scalar/nestjs-api-reference": "^0.3.132",
     "axios": "^1.6.7",
     "bcrypt": "^5.1.1",
+    "date-fns": "^4.1.0",
     "handlebars": "^4.7.8",
     "nestjs-zod": "^3.0.0",
     "nodemailer": "^6.9.15",

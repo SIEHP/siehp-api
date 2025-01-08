@@ -27,6 +27,9 @@ import { TestAuthResponseDTO } from 'src/modules/user/domain/dtos/requests/TestA
 import { UserService } from '../../services/User.service';
 import { join } from 'path';
 import { EmailProvider } from 'src/shared/infra/providers/Email.provider';
+import { TokenProvider } from '../../providers/Token.provider';
+import { InviteBodyDTO, InviteResponseDTO } from 'src/modules/user/domain/dtos/requests/Invite.request.dto';
+import { ValidateTokenBodyDTO } from 'src/modules/user/domain/dtos/requests/ValidateToken.request.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -40,6 +43,7 @@ export class UserController {
     private loginUseCase: LoginUseCase,
     private userService: UserService,
     private emailProvider: EmailProvider,
+    private tokenProvider: TokenProvider,
   ) {}
 
   @Post('login')
@@ -94,5 +98,94 @@ export class UserController {
     });
 
     return res.status(HttpStatus.OK).json({ user: req.user });
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('user-token')
+  @Post('/invite/professor')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Convite enviado com sucesso',
+    type: InviteResponseDTO
+  })
+  @ApiOperation({ summary: 'Envia convite para professor' })
+  async inviteProfessor(@Body() inviteDto: InviteBodyDTO, @Req() req: Request, @Res() res: Response) {
+    // Verifica se o usuário tem permissão de administrador
+    const checkUserPermission = await this.userService.checkUserPermissions({
+      user_email: req.user.email,
+      neededPermissions: ['MANTER_PROFESSORES'],
+    });
+
+    if (!checkUserPermission.hasPermission) {
+      throw new InvalidPermissionsException({
+        permissions: checkUserPermission.notIncludedPermissions,
+      });
+    }
+
+    // Cria um usuário temporário para o professor
+    const tempUser = await this.userService.createTempUser({
+      email: inviteDto.email,
+      role: 'PROFESSOR',
+    });
+
+    // Envia o token por email
+    await this.tokenProvider.sendToken({
+      email: inviteDto.email,
+      userId: tempUser.id,
+    });
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Convite enviado com sucesso',
+    });
+  }
+
+  @Post('/validate-token')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token validado com sucesso',
+  })
+  @ApiOperation({ summary: 'Valida token de convite e cria conta' })
+  async validateToken(
+    @Body() validateTokenDto : ValidateTokenBodyDTO,
+    @Res() res: Response,
+  ) {
+    
+    const tokenData = await this.tokenProvider.getTokenData(validateTokenDto.token);
+
+    if (!tokenData || tokenData.expiresAt < new Date()) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Token inválido ou expirado',
+      });
+    }
+
+    
+    await this.userService.activateUser({
+      userId: tokenData.userId,
+      password: validateTokenDto.password,
+    });
+
+    await this.tokenProvider.invalidateToken(validateTokenDto.token);
+
+   
+    const templatePath = join(
+      process.cwd(),
+      'src/modules/user/infra/views/emails/success.hbs',
+    );
+
+    await this.emailProvider.send({
+      subject: 'Cadastro Realizado com Sucesso - SIEHP',
+      to: tokenData.user.email,
+      templateData: {
+        filePath: templatePath,
+        variables: {
+          userName: tokenData.user.email,
+          frontendUrl: process.env.FRONTEND_URL,
+        },
+      },
+    });
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Conta criada com sucesso',
+    });
   }
 }

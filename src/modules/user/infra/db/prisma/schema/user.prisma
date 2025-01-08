@@ -12,6 +12,7 @@ model User {
     updated_by        Int?
 
     user_permissions UserPermission[]
+    tokens           Token[]  
 
     @@map("users")
 }
