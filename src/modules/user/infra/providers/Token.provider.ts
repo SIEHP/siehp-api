@@ -34,7 +34,7 @@ export class TokenProvider implements TokenProviderInterface {
       return false;
     }
 
-    if (token.expiresAt < new Date()) {
+    if (token.expires_at < new Date()) {
       return false;
     }
 
@@ -53,23 +53,26 @@ export class TokenProvider implements TokenProviderInterface {
   }
 
   async invalidateToken(token: string) {
-    await this.prisma.token.delete({
+    await this.prisma.token.update({
       where: {
         token,
       },
+      data: {
+        is_used : true,
+      }
     });
   }
 
   async sendToken(data: SendTokenDTO): Promise<void> {
     const token = this.generateToken();
-    const expiresAt = addDays(new Date(), 7); 
+    const expires_at = addDays(new Date(), 7); 
 
     // Criar ou atualizar token no banco
     await this.prisma.token.create({
       data: {
         token,
-        userId: data.userId,
-        expiresAt,
+        user_id: data.userId,
+        expires_at,
       },
     });
 

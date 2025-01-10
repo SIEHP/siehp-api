@@ -79,6 +79,7 @@ describe('UserController - /user', () => {
 
   beforeEach(async () => {
     await prisma.seed([userSeeder]);
+    jest.clearAllMocks();
   });
 
   afterEach(async () => {
@@ -312,9 +313,10 @@ describe('UserController - /user', () => {
       const mockTokenData = {
         id: 1,
         token: 'valid-token',
-        userId: 123,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 3600000),
+        user_id: 123,
+        created_at: new Date(),
+        expires_at: new Date(Date.now() + 3600000),
+        is_used: false,
         user: {
           id: 123,
           name: 'professor',
@@ -357,24 +359,28 @@ describe('UserController - /user', () => {
     it('should return error for invalid token', async () => {
       jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(null);
 
-      await controller.validateToken(
-        { token: 'invalid-token', password: 'password123' },
-        mockResponse,
-      );
+      const mockRequest = {
+        token: 'invalid-token',
+        password: 'password123'
+      };
+
+      await controller.validateToken(mockRequest, mockResponse);
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
-        message: 'Token inválido ou expirado',
+        message: 'Token inválido ou expirado.',
       });
+      expect(mockResponse.json).toHaveBeenCalledTimes(1);
     });
 
     it('should return error for expired token', async () => {
       const mockTokenData = {
         id: 1,
         token: 'expired-token',
-        userId: 123,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() - 3600000),
+        user_id: 123,
+        created_at: new Date(),
+        expires_at: new Date(Date.now() - 3600000),
+        is_used: false,
         user: {
           id: 123,
           name: 'professor',
@@ -399,8 +405,47 @@ describe('UserController - /user', () => {
 
       expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith({
-        message: 'Token inválido ou expirado',
+        message: 'Token inválido ou expirado.',
       });
+    });
+
+    it('should return error for used token', async () => {
+      const mockTokenData = {
+        id: 1,
+        token: 'expired-token',
+        user_id: 123,
+        created_at: new Date(),
+        expires_at: new Date(Date.now() + 3600000),
+        is_used: true,
+        user: {
+          id: 123,
+          name: 'professor',
+          email: 'professor@example.com',
+          password: '',
+          registration_code: '123456',
+          role: 'PROFESSOR' as Role,
+          status: 'PENDING' as Status,
+          created_at: new Date(),
+          updated_at: new Date(),
+          created_by: 1,
+          updated_by: 1,
+        },
+      };
+
+      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(mockTokenData);
+
+      const mockRequest = {
+        token: 'used-token',
+        password: 'password123'
+      };
+
+      await controller.validateToken(mockRequest, mockResponse);
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith({
+        message: 'Esse token já foi utilizado.',
+      });
+      expect(mockResponse.json).toHaveBeenCalledTimes(1);
     });
   });
 });

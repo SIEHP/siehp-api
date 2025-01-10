@@ -152,15 +152,20 @@ export class UserController {
     
     const tokenData = await this.tokenProvider.getTokenData(validateTokenDto.token);
 
-    if (!tokenData || tokenData.expiresAt < new Date()) {
+    if (!tokenData || tokenData.expires_at < new Date()) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Token inválido ou expirado',
+        message: 'Token inválido ou expirado.',
       });
     }
 
+    if(tokenData.is_used){
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        message: 'Esse token já foi utilizado.',
+      });
+    }
     
     await this.userService.activateUser({
-      userId: tokenData.userId,
+      userId: tokenData.user_id,
       password: validateTokenDto.password,
     });
 
