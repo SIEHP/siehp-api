@@ -1,0 +1,15 @@
+model Image {
+    id          Int      @id @default(autoincrement())
+    file_id     Int      
+    title       String   @db.Text
+    status      Status   @default(ACTIVE)
+    url         String   @db.Text
+    created_at  DateTime @default(now())
+    updated_at  DateTime @default(now()) @updatedAt
+    created_by  Int?
+    updated_by  Int?
+
+    image_tags  ImageTag[]
+
+    @@map("image")
+} 

@@ -1,0 +1,30 @@
+model Tag {
+    id          Int      @id @default(autoincrement())
+    name        String   @db.Text
+    status      Status   @default(ACTIVE)
+    created_at  DateTime @default(now())
+    updated_at  DateTime @default(now()) @updatedAt
+    created_by  Int?
+    updated_by  Int?
+
+    image_tags  ImageTag[]
+
+    @@map("tag")
+}
+
+model ImageTag {
+    id          Int      @id @default(autoincrement())
+    image_id    Int
+    tag_id      Int
+    status      Status   @default(ACTIVE)
+    created_at  DateTime @default(now())
+    updated_at  DateTime @default(now()) @updatedAt
+    created_by  Int?
+    updated_by  Int?
+
+    tag         Tag      @relation(fields: [tag_id], references: [id])
+    image       Image    @relation(fields: [image_id], references: [id])
+
+    @@unique([image_id, tag_id])
+    @@map("image_tag")
+} 

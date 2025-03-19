@@ -40,6 +40,7 @@
     "nodemailer": "^6.9.15",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "siehp-api": "file:",
     "zod": "^3.22.4"
   },
   "devDependencies": {
