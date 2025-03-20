@@ -41,7 +41,13 @@ export class LoginUseCase implements UseCaseInterface {
     const accessToken = this.jwtService.sign(payload);
 
     return {
-      access_token: accessToken,
+      token: accessToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        imageProfileUrl: user.profile_image_url,
+      },
     };
   }
 }

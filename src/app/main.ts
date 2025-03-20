@@ -15,6 +15,11 @@ async function bootstrap() {
   const logger = new LoggerProvider(new DiscordWebhookProvider());
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  });
 
   app.useGlobalFilters(
     new AllExceptionsFilter(logger),

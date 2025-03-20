@@ -25,4 +25,4 @@ export interface createUserDTO {
   registration_code: string;
 }
 
-export interface CreateTempUserResponseDTO extends Omit<User, 'updated_at' | 'created_at' | 'created_by' | 'updated_by'> {}
+export interface CreateTempUserResponseDTO extends Omit<User, 'updated_at' | 'created_at' | 'created_by' | 'updated_by' | 'profile_image_url'> {}

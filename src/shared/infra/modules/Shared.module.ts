@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { EmailProvider } from '../providers/Email.provider';
 import { LoggerProvider } from '../providers/Logger.provider';
 import { DiscordWebhookProvider } from '../providers/DiscordWebhook.provider';
-
+import { appConfig } from 'src/shared/config/app';
 @Global()
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { DiscordWebhookProvider } from '../providers/DiscordWebhook.provider';
       isGlobal: true,
     }),
     JwtModule.register({
-      secret: `${process.env.JWT_SECRET}`,
+      secret: appConfig.JWT_SECRET,
       signOptions: { expiresIn: '7d' },
       global: true,
     }),
