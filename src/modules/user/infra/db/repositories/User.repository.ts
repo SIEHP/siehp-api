@@ -71,6 +71,7 @@ export class UserRepository implements UserRepositoryInterface {
         registration_code: true,
         role: true,
         status: true,
+        profile_image_url: true,
       },
     });
 

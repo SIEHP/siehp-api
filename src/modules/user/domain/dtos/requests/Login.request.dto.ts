@@ -44,7 +44,13 @@ export const LoginBodySchema = z
 export class LoginBodyDTO extends createZodDto(LoginBodySchema) {}
 
 const LoginResponseSchema = z.object({
-  access_token: z.string(),
+  token: z.string(),
+  user: z.object({
+    id: z.number(),
+    name: z.string(),
+    role: z.string(),
+    imageProfileUrl: z.string().optional(),
+  }),
 });
 
 export class LoginResponseDTO extends createZodDto(LoginResponseSchema) {}
