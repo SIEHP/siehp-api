@@ -39,7 +39,7 @@ export class ImageRepository implements ImageRepositoryInterface {
         });
 
         if (!image) {
-            throw new NotFoundImageException();
+            return null;
         }
 
         return image;

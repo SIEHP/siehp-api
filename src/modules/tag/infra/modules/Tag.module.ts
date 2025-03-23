@@ -26,4 +26,5 @@ import { UserRepository } from 'src/modules/user/infra/db/repositories/User.repo
         UserRepository,
     ],
 })
+export class TagModule {}
  

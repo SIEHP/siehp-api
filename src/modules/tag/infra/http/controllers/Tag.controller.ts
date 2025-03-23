@@ -137,7 +137,8 @@ export class TagController {
     @ApiOperation({ summary: 'Associar uma tag a uma imagem' })
     async createImageTag(@Body() body: CreateImageTagBodyDTO, @Req() req: Request, @Res() res: Response) {
         const imageTag = await this.createImageTagUseCase.execute({
-            ...body,
+            image_id: body.image_id,
+            tag_id: body.tag_id,
             user_email: req.user.email,
         });
 

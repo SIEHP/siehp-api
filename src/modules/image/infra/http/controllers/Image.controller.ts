@@ -53,7 +53,9 @@ export class ImageController {
     @ApiOperation({ summary: 'Criar uma nova imagem' })
     async create(@Body() body: CreateImageBodyDTO, @Req() req: Request, @Res() res: Response) {
         const image = await this.createImageUseCase.execute({
-            ...body,
+            file_id: body.file_id,
+            title: body.title,
+            url: body.url,
             user_email: req.user.email,
         });
 

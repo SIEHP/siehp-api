@@ -44,10 +44,6 @@ export class TagRepository implements TagRepositoryInterface {
             },
         });
 
-        if (!tag) {
-            throw new NotFoundTagException();
-        }
-
         return tag;
     }
 

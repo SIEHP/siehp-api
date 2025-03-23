@@ -49,7 +49,7 @@ const LoginResponseSchema = z.object({
     id: z.number(),
     name: z.string(),
     role: z.string(),
-    imageProfileUrl: z.string().optional(),
+    profile_image_url: z.string().optional(),
   }),
 });
 
