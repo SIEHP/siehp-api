@@ -46,7 +46,7 @@ export class LoginUseCase implements UseCaseInterface {
         id: user.id,
         name: user.name,
         role: user.role,
-        imageProfileUrl: user.profile_image_url,
+        profile_image_url: user.profile_image_url,
       },
     };
   }

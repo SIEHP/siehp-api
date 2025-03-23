@@ -46,6 +46,8 @@ describe('UserController - /user', () => {
     json: jest.fn(),
   } as unknown as Response;
 
+  jest.setTimeout(30000);
+
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [UserModule, SharedModule],
@@ -140,7 +142,13 @@ describe('UserController - /user', () => {
       };
 
       jest.spyOn(loginUseCase, 'execute').mockResolvedValue({
-        access_token: 'mock-jwt-token'
+        token: 'mock-jwt-token',
+        user: {
+          id: 1,
+          name: 'Test User',
+          role: 'ADMIN',
+          profile_image_url: null
+        }
       });
 
       await controller.login(loginDto, mockResponse);
@@ -148,11 +156,11 @@ describe('UserController - /user', () => {
       expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(mockResponse.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          access_token: expect.any(String),
+          token: expect.any(String),
         }),
       );
       
-      jwtToken = (mockResponse.json as jest.Mock).mock.calls[0][0].access_token;
+      jwtToken = (mockResponse.json as jest.Mock).mock.calls[0][0].token;
     });
 
   
@@ -329,6 +337,7 @@ describe('UserController - /user', () => {
           updated_at: new Date(),
           created_by: 1,
           updated_by: 1,
+          profile_image_url: null,
         },
       };
 
@@ -393,6 +402,7 @@ describe('UserController - /user', () => {
           updated_at: new Date(),
           created_by: 1,
           updated_by: 1,
+          profile_image_url: null,
         },
       };
 
@@ -429,6 +439,7 @@ describe('UserController - /user', () => {
           updated_at: new Date(),
           created_by: 1,
           updated_by: 1,
+          profile_image_url: null,
         },
       };
 

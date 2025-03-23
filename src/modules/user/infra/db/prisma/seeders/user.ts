@@ -102,7 +102,7 @@ export const userSeeder = async (prisma: PrismaClient) => {
       password: hashPassword,
       role: 'ADMIN',
       status: 'ACTIVE',
-      registration_code: '123456',
+      registration_code: Date.now().toString(),
       user_permissions: {
         createMany: {
           data: createdPermissions.map((permission) => ({
