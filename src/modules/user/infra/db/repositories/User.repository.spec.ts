@@ -24,6 +24,7 @@ describe('UserRepository', () => {
   });
 
   beforeEach(async () => {
+    await prisma.userPermission.deleteMany();
     await prisma.user.deleteMany();
   });
 
