@@ -57,6 +57,7 @@ export class ImageController {
             title: body.title,
             url: body.url,
             user_email: req.user.email,
+            tags: body.tags,
         });
 
         return res.status(HttpStatus.CREATED).json(image);
@@ -99,6 +100,7 @@ export class ImageController {
             id,
             ...body,
             user_email: req.user.email,
+            tags: body.tags,
         });
 
         return res.status(HttpStatus.OK).json(image);

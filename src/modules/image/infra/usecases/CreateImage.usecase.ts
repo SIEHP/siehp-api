@@ -6,6 +6,8 @@ import { InvalidPermissionsException } from 'src/modules/user/domain/errors/Inva
 import { CreateImageUseCaseDTO, CreateImageUseCaseResponseDTO } from '../../domain/dtos/usecases/Image.usecase.dto';
 import { UserRepository } from 'src/modules/user/infra/db/repositories/User.repository';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
+import { TagRepository } from 'src/modules/tag/infra/db/repositories/Tag.repository';
+import { NotFoundTagException } from 'src/modules/tag/domain/errors/NotFoundTag.exception';
 
 @Injectable()
 export class CreateImageUseCase implements UseCaseInterface {
@@ -13,6 +15,7 @@ export class CreateImageUseCase implements UseCaseInterface {
         private imageRepository: ImageRepository,
         private userService: UserService,
         private userRepository: UserRepository,
+        private tagRepository: TagRepository,
     ) {}
 
     async execute({
@@ -20,6 +23,7 @@ export class CreateImageUseCase implements UseCaseInterface {
         title,
         url,
         user_email,
+        tags,
     }: CreateImageUseCaseDTO): Promise<CreateImageUseCaseResponseDTO> {
         const checkUserPermission = await this.userService.checkUserPermissions({
             user_email,
@@ -45,6 +49,39 @@ export class CreateImageUseCase implements UseCaseInterface {
             url,
             created_by: user.id,
         });
+
+        if (tags && tags.length > 0) {
+            const imageTags = await Promise.all(
+                tags.map(async (tagName) => {
+                    try {
+                        const existingTag = await this.tagRepository.findByName({ name: tagName });
+                        return existingTag;
+                    } catch (error) {
+                        if (error instanceof NotFoundTagException) {
+                            const newTag = await this.tagRepository.create({
+                                name: tagName,
+                                status: 'ACTIVE',
+                                created_by: user.id,
+                            });
+                            return newTag;
+                        }
+                        throw error;
+                    }
+                }),
+            );
+
+            await Promise.all(
+                imageTags.map((tag) =>
+                    this.tagRepository.createImageTag({
+                        image_id: image.id,
+                        tag_id: tag.id,
+                        created_by: user.id,
+                    }),
+                ),
+            );
+
+            image.tags = imageTags;
+        }
 
         return image;
     }
