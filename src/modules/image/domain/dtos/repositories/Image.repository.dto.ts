@@ -6,6 +6,7 @@ export interface CreateImageDTO {
     status: Status;
     url: string;
     created_by: number;
+    tags?: string[];
 }
 
 export interface CreateImageResponseDTO {
@@ -18,6 +19,11 @@ export interface CreateImageResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number | null;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 }
 
 export interface FindImageByIdDTO {
@@ -34,13 +40,20 @@ export interface FindImageByIdResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number | null;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 }
 
 export interface UpdateImageDTO {
     id: number;
     title?: string;
     status?: Status;
+    url?: string;
     updated_by: number;
+    tags?: string[];
 }
 
 export interface UpdateImageResponseDTO {
@@ -53,6 +66,11 @@ export interface UpdateImageResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 }
 
 export interface DeleteImageDTO {
@@ -70,4 +88,9 @@ export interface DeleteImageResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 } 

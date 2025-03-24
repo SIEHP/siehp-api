@@ -5,6 +5,7 @@ export interface CreateImageUseCaseDTO {
     title: string;
     url: string;
     user_email: string;
+    tags?: string[];
 }
 
 export interface CreateImageUseCaseResponseDTO {
@@ -17,6 +18,11 @@ export interface CreateImageUseCaseResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number | null;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 }
 
 export interface GetImageUseCaseDTO {
@@ -34,13 +40,19 @@ export interface GetImageUseCaseResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number | null;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 }
 
 export interface UpdateImageUseCaseDTO {
     id: number;
     title?: string;
-    status?: Status;
+    url?: string;
     user_email: string;
+    tags?: string[];
 }
 
 export interface UpdateImageUseCaseResponseDTO {
@@ -53,6 +65,11 @@ export interface UpdateImageUseCaseResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 }
 
 export interface DeleteImageUseCaseDTO {
@@ -70,4 +87,9 @@ export interface DeleteImageUseCaseResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number;
+    tags?: {
+        id: number;
+        name: string;
+        status: Status;
+    }[];
 } 

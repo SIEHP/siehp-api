@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-export class NotFoundImageException extends HttpException {
+export class NotFoundImageException extends Error {
     constructor() {
-        super('Imagem não encontrada.', HttpStatus.NOT_FOUND);
+        super('Image not found');
+        this.name = 'NotFoundImageException';
     }
 } 

@@ -12,17 +12,24 @@ const imageSchema = z.object({
     updated_at: z.date(),
     created_by: z.number(),
     updated_by: z.number().nullable(),
+    tags: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+        status: z.nativeEnum(Status),
+    })).optional(),
 });
 
 export const createImageBodySchema = z.object({
     file_id: z.number(),
     title: z.string(),
     url: z.string(),
+    tags: z.array(z.string()).optional(),
 }).required();
 
 export const updateImageBodySchema = z.object({
     title: z.string().optional(),
-    status: z.nativeEnum(Status).optional(),
+    url: z.string().optional(),
+    tags: z.array(z.string()).optional(),
 }).required();
 
 export class CreateImageBodyDTO extends createZodDto(createImageBodySchema) {}
