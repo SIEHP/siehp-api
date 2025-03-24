@@ -193,4 +193,18 @@ export class UserController {
       message: 'Conta criada com sucesso',
     });
   }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('user-token')
+  @Get('/validate-access-token')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Token de acesso validado com sucesso',
+  })
+  @ApiOperation({ summary: 'Valida o token de acesso do usuário' })
+  async validateAccessToken(@Req() req: Request, @Res() res: Response) {
+    return res.status(HttpStatus.OK).json({
+      isValid: true,
+    });
+  }
 }

@@ -89,7 +89,7 @@ export class TokenProvider implements TokenProviderInterface {
         variables: {
           userName: data.email,
           token: token,
-          link: `${process.env.FRONTEND_URL}/cadastro?token=${token}`,
+          link: `${process.env.FRONTEND_URL}/completar-cadastro?token=${token}`,
         },
       },
     });
