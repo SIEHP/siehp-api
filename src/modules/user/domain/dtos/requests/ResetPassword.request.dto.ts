@@ -19,4 +19,11 @@ export const tokenSchema = z
     }
   });
 
-export class ValidateTokenBodyDTO extends createZodDto(tokenSchema) {}
+export class ResetPasswordBodyDTO extends createZodDto(tokenSchema) {}
+
+export const ResetPasswordResponseSchema = z.object({
+  message: z.string(),
+  statusCode: z.number().optional(),
+});
+
+export class ResetPasswordResponseDTO extends createZodDto(ResetPasswordResponseSchema) {}  

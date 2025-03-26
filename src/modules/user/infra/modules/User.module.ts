@@ -6,6 +6,8 @@ import { UserService } from '../services/User.service';
 import { TokenProvider } from '../providers/Token.provider';
 import { TokenRepository } from '../db/repositories/Token.repository';
 import { RefreshAccessTokenUseCase } from '../usecases/Refresh.access.token.usecase';
+import { ForgotPasswordUseCase } from '../usecases/ForgotPassword.usecase';
+import { ResetPasswordUseCase } from '../usecases/ResetPassword.usecase';
 
 @Module({
   controllers: [UserController],
@@ -16,6 +18,8 @@ import { RefreshAccessTokenUseCase } from '../usecases/Refresh.access.token.usec
     TokenProvider,
     TokenRepository,
     RefreshAccessTokenUseCase,
+    ForgotPasswordUseCase,
+    ResetPasswordUseCase,
   ],
 })
 export class UserModule {}

@@ -63,7 +63,7 @@ export class TokenProvider implements TokenProviderInterface {
     });
   }
 
-  async sendToken(data: SendTokenDTO): Promise<void> {
+  async sendInviteToken(data: SendTokenDTO): Promise<void> {
     const token = this.generateToken();
     const expires_at = addDays(new Date(), 7); 
 
@@ -90,6 +90,37 @@ export class TokenProvider implements TokenProviderInterface {
           userName: data.email,
           token: token,
           link: `${process.env.FRONTEND_URL}/completar-cadastro?token=${token}`,
+        },
+      },
+    });
+  }
+
+  async sendForgotPasswordToken(data: SendTokenDTO): Promise<void> {
+    const token = this.generateToken();
+    const expires_at = addHours(new Date(), 1);
+
+    await this.prisma.token.create({
+      data: {
+        token,
+        user_id: data.userId,
+        expires_at,
+      },
+    });
+    
+    const templatePath = join(
+      process.cwd(),
+      'src/modules/user/infra/views/emails/forgot-password.hbs',
+    );
+
+    await this.emailProvider.send({
+      subject: 'Recuperação de Senha - SIEHP',
+      to: data.email,
+      templateData: {
+        filePath: templatePath,
+        variables: {  
+          userName: data.email,
+          token: token,
+          link: `${process.env.FRONTEND_URL}/redefinir-senha?token=${token}`,
         },
       },
     });
