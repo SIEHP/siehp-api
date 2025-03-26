@@ -28,6 +28,7 @@ export interface CreateTempUserResponseDTO {
 export interface ActivateUserRequestDTO {
   userId: number;
   password: string;
+  permissions: Permissions[];
 }
 
 

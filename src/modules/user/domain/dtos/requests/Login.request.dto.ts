@@ -50,6 +50,7 @@ const LoginResponseSchema = z.object({
     name: z.string(),
     role: z.string(),
     profile_image_url: z.string().optional(),
+    permissions: z.array(z.string()),
   }),
 });
 

@@ -40,6 +40,15 @@ export class LoginUseCase implements UseCaseInterface {
     const payload = { email: user.email };
     const accessToken = this.jwtService.sign(payload);
 
+    const permissionsList = user.user_permissions.flatMap((userPermission) => {
+      return [
+        userPermission.permission.name,
+        ...userPermission.permission.permissions_included.map((permission) => permission.included_permission.name),
+      ];
+    });
+
+    const permissions = [...new Set(permissionsList)];
+
     return {
       token: accessToken,
       user: {
@@ -47,6 +56,7 @@ export class LoginUseCase implements UseCaseInterface {
         name: user.name,
         role: user.role,
         profile_image_url: user.profile_image_url,
+        permissions,
       },
     };
   }

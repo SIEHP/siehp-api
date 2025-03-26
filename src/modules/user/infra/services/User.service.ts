@@ -13,6 +13,7 @@ import { UserServiceInterface } from '../../domain/services/User.service';
 import { UserRepository } from '../db/repositories/User.repository';
 import { SALT } from '../utils/constants';
 
+
 @Injectable()
 export class UserService implements UserServiceInterface {
   constructor(private userRepository: UserRepository) {}
@@ -77,5 +78,13 @@ export class UserService implements UserServiceInterface {
         status: 'ACTIVE' as Status,
       },
     });
+
+    await this.userRepository.createUserPermission({
+      user_id: data.userId,
+      permissions: data.permissions,
+    });
+
   }
+
+  
 }

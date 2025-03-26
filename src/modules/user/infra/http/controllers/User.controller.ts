@@ -30,7 +30,7 @@ import { EmailProvider } from 'src/shared/infra/providers/Email.provider';
 import { TokenProvider } from '../../providers/Token.provider';
 import { InviteBodyDTO, InviteResponseDTO } from 'src/modules/user/domain/dtos/requests/Invite.request.dto';
 import { ValidateTokenBodyDTO } from 'src/modules/user/domain/dtos/requests/ValidateToken.request.dto';
-
+import { RefreshAccessTokenUseCase } from 'src/modules/user/infra/usecases/Refresh.access.token.usecase';
 @Controller('user')
 @ApiTags('User')
 @ApiResponse({
@@ -44,6 +44,7 @@ export class UserController {
     private userService: UserService,
     private emailProvider: EmailProvider,
     private tokenProvider: TokenProvider,
+    private refreshAccessTokenUseCase: RefreshAccessTokenUseCase,
   ) {}
 
   @Post('login')
@@ -167,6 +168,14 @@ export class UserController {
     await this.userService.activateUser({
       userId: tokenData.user_id,
       password: validateTokenDto.password,
+      permissions: [
+        'MANTER_ALUNOS',
+        'MANTER_IMAGENS',
+        'MANTER_TURMAS',
+        'MANTER_ATIVIDADES',
+        'MANTER_CONTEUDOS',
+        'CORRIGIR_ATIVIDADES',
+      ],
     });
 
     await this.tokenProvider.invalidateToken(validateTokenDto.token);
@@ -196,15 +205,15 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @ApiBearerAuth('user-token')
-  @Get('/validate-access-token')
+  @Get('/refresh-access-token')
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Token de acesso validado com sucesso',
+    description: 'Token de acesso atualizado com sucesso',
   })
-  @ApiOperation({ summary: 'Valida o token de acesso do usuário' })
-  async validateAccessToken(@Req() req: Request, @Res() res: Response) {
-    return res.status(HttpStatus.OK).json({
-      isValid: true,
-    });
+  @ApiOperation({ summary: 'Atualiza o token de acesso do usuário' })
+  async refreshAccessToken(@Req() req: Request, @Res() res: Response) {
+    const user = req.user;
+    const refreshAccessTokenResponse = await this.refreshAccessTokenUseCase.execute({email: user.email})
+    return res.status(HttpStatus.OK).json(refreshAccessTokenResponse)
   }
 }

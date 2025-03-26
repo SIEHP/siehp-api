@@ -10,12 +10,15 @@ import {
   UpdateUserDTO,
   UpdateUserResponseDTO,
   createUserDTO,
-  CreateTempUserResponseDTO
+  CreateTempUserResponseDTO,
+  CreateUserPermissionDTO,
+  CreateUserPermissionResponseDTO,
 } from 'src/modules/user/domain/dtos/repositories/User.repository.dto';
 import { EmailAlreadyInUseExpection } from 'src/modules/user/domain/errors/EmailAlreadyInUse.expection';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
 import { UserRepositoryInterface } from 'src/modules/user/domain/repositories/User.repository';
 import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';
+import { Permissions } from '@prisma/client';
 
 @Injectable()
 export class UserRepository implements UserRepositoryInterface {
@@ -72,6 +75,26 @@ export class UserRepository implements UserRepositoryInterface {
         role: true,
         status: true,
         profile_image_url: true,
+        user_permissions: {
+          select: {
+            permission: {
+              select: {
+                name: true,
+                description: true,
+                permissions_included: {
+                  select: {
+                    included_permission: {
+                      select: {
+                        name: true,
+                        description: true,
+                      },
+                    },
+                  },
+                }
+              },
+            },
+          },
+        },
       },
     });
 
@@ -126,4 +149,29 @@ export class UserRepository implements UserRepositoryInterface {
       data,
     });
   }
+
+  async createUserPermission({
+    user_id,
+    permissions,
+  }: CreateUserPermissionDTO): Promise<void> {
+
+    const permissionsIds = await this.prisma.permission.findMany({
+      where: {
+        name: {
+          in: permissions,
+        },
+      },
+    });
+    
+    await this.prisma.userPermission.createMany({
+      data: permissionsIds.map((permission) => ({
+        user_id,
+        permission_id: permission.id,
+      })),
+    });
+
+    return;
+  }
+  
+  
 }
