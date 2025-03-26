@@ -6,8 +6,8 @@ const tagSchema = z.object({
     id: z.number(),
     name: z.string(),
     status: z.nativeEnum(Status),
-    created_at: z.date(),
-    updated_at: z.date(),
+    created_at: z.union([z.string(), z.date()]),
+    updated_at: z.union([z.string(), z.date()]),
     created_by: z.number(),
     updated_by: z.number().nullable(),
 });
@@ -17,8 +17,8 @@ const imageTagSchema = z.object({
     image_id: z.number(),
     tag_id: z.number(),
     status: z.nativeEnum(Status),
-    created_at: z.date(),
-    updated_at: z.date(),
+    created_at: z.union([z.string(), z.date()]),
+    updated_at: z.union([z.string(), z.date()]),
     created_by: z.number(),
     updated_by: z.number().nullable(),
 });

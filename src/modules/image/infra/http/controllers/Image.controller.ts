@@ -25,7 +25,8 @@ import { CreateImageUseCase } from '../../usecases/CreateImage.usecase';
 import { GetImageUseCase } from '../../usecases/GetImage.usecase';
 import { UpdateImageUseCase } from '../../usecases/UpdateImage.usecase';
 import { DeleteImageUseCase } from '../../usecases/DeleteImage.usecase';
-import { CreateImageBodyDTO, ImageResponseDTO, UpdateImageBodyDTO } from 'src/modules/image/domain/dtos/requests/Image.request.dto';
+import { CreateImageBodyDTO, ImageResponseDTO, UpdateImageBodyDTO,  } from 'src/modules/image/domain/dtos/requests/Image.request.dto';
+import { ListImageUseCase } from '../../usecases/ListImageUseCase';
 
 @Controller('image')
 @ApiTags('Image')
@@ -40,11 +41,12 @@ export class ImageController {
         private getImageUseCase: GetImageUseCase,
         private updateImageUseCase: UpdateImageUseCase,
         private deleteImageUseCase: DeleteImageUseCase,
+        private listImageUseCase: ListImageUseCase,
     ) {}
 
     @UseGuards(AuthGuard)
     @ApiBearerAuth('user-token')
-    @Post()
+    @Post('/create')
     @ApiResponse({
         status: HttpStatus.CREATED,
         description: 'Imagem criada com sucesso.',
@@ -53,7 +55,6 @@ export class ImageController {
     @ApiOperation({ summary: 'Criar uma nova imagem' })
     async create(@Body() body: CreateImageBodyDTO, @Req() req: Request, @Res() res: Response) {
         const image = await this.createImageUseCase.execute({
-            file_id: body.file_id,
             title: body.title,
             url: body.url,
             user_email: req.user.email,
@@ -122,5 +123,20 @@ export class ImageController {
         });
 
         return res.status(HttpStatus.OK).json(image);
+    }
+
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth('user-token')
+    @Get('/')
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Lista de imagens encontrada com sucesso.',
+        type: ImageResponseDTO,
+    })
+    async list(@Req() req: Request, @Res() res: Response) {
+        const user = req.user;
+        const images = await this.listImageUseCase.execute({email: user.email});
+
+        return res.status(HttpStatus.OK).json(images);
     }
 } 

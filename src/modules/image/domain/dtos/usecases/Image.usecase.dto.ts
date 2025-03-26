@@ -1,7 +1,6 @@
 import { Status } from '@prisma/client';
 
 export interface CreateImageUseCaseDTO {
-    file_id: number;
     title: string;
     url: string;
     user_email: string;
@@ -10,7 +9,6 @@ export interface CreateImageUseCaseDTO {
 
 export interface CreateImageUseCaseResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -32,7 +30,6 @@ export interface GetImageUseCaseDTO {
 
 export interface GetImageUseCaseResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -57,7 +54,6 @@ export interface UpdateImageUseCaseDTO {
 
 export interface UpdateImageUseCaseResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -79,7 +75,6 @@ export interface DeleteImageUseCaseDTO {
 
 export interface DeleteImageUseCaseResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -92,4 +87,10 @@ export interface DeleteImageUseCaseResponseDTO {
         name: string;
         status: Status;
     }[];
-} 
+}
+
+export interface ListImageUseCaseDTO {
+    email: string;
+}
+
+export interface ListImageUseCaseResponseDTO extends Array<GetImageUseCaseResponseDTO> {} 

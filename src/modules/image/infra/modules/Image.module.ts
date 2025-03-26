@@ -8,6 +8,7 @@ import { DeleteImageUseCase } from '../usecases/DeleteImage.usecase';
 import { UserService } from 'src/modules/user/infra/services/User.service';
 import { UserRepository } from 'src/modules/user/infra/db/repositories/User.repository';
 import { TagRepository } from 'src/modules/tag/infra/db/repositories/Tag.repository';
+import { ListImageUseCase } from '../usecases/ListImageUseCase';
 
 @Module({
     controllers: [ImageController],
@@ -20,6 +21,7 @@ import { TagRepository } from 'src/modules/tag/infra/db/repositories/Tag.reposit
         UserService,
         UserRepository,
         TagRepository,
+        ListImageUseCase,
     ],
 })
 export class ImageModule {} 
