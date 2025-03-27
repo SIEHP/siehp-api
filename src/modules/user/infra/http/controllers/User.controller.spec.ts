@@ -355,6 +355,14 @@ describe('UserController - /user', () => {
       expect(userService.activateUser).toHaveBeenCalledWith({
         userId: 123,
         password: 'password123',
+        permissions: [
+          'MANTER_ALUNOS',
+          'MANTER_IMAGENS',
+          'MANTER_TURMAS',
+          'MANTER_ATIVIDADES',
+          'MANTER_CONTEUDOS',
+          'CORRIGIR_ATIVIDADES',
+        ],
       });
       expect(tokenProvider.invalidateToken).toHaveBeenCalledWith('valid-token');
       expect(emailProvider.send).toHaveBeenCalled();
