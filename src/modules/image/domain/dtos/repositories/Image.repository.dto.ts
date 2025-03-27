@@ -1,17 +1,16 @@
 import { Status } from '@prisma/client';
 
 export interface CreateImageDTO {
-    file_id: number;
     title: string;
     status: Status;
     url: string;
     created_by: number;
+    file_id: number;
     tags?: string[];
 }
 
 export interface CreateImageResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -32,7 +31,6 @@ export interface FindImageByIdDTO {
 
 export interface FindImageByIdResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -58,7 +56,6 @@ export interface UpdateImageDTO {
 
 export interface UpdateImageResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -80,7 +77,6 @@ export interface DeleteImageDTO {
 
 export interface DeleteImageResponseDTO {
     id: number;
-    file_id: number;
     title: string;
     status: Status;
     url: string;
@@ -93,4 +89,8 @@ export interface DeleteImageResponseDTO {
         name: string;
         status: Status;
     }[];
+}
+
+export interface FindAllImagesDTO {
+    user_id: number;
 } 

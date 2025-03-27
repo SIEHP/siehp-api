@@ -10,6 +10,7 @@ import {
     FindImageByIdResponseDTO,
     UpdateImageDTO,
     UpdateImageResponseDTO,
+    FindAllImagesDTO,
 } from 'src/modules/image/domain/dtos/repositories/Image.repository.dto';
 import { NotFoundImageException } from 'src/modules/image/domain/errors/NotFoundImage.exception';
 
@@ -20,11 +21,11 @@ export class ImageRepository implements ImageRepositoryInterface {
     async create(data: CreateImageDTO): Promise<CreateImageResponseDTO> {
         const image = await this.prisma.image.create({
             data: {
-                file_id: data.file_id,
                 title: data.title,
                 status: data.status,
                 url: data.url,
                 created_by: data.created_by,
+                file_id: data.file_id,
             },
         });
 
@@ -72,5 +73,16 @@ export class ImageRepository implements ImageRepositoryInterface {
         });
 
         return image;
+    }
+
+    async findAll(data: FindAllImagesDTO): Promise<FindImageByIdResponseDTO[]> {
+        const images = await this.prisma.image.findMany({
+            where: {
+                status: 'ACTIVE',
+                created_by: data.user_id,
+            },
+        });
+
+        return images;
     }
 } 

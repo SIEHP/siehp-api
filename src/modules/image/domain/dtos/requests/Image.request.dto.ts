@@ -4,12 +4,11 @@ import { Status } from '@prisma/client';
 
 const imageSchema = z.object({
     id: z.number(),
-    file_id: z.number(),
     title: z.string(),
     status: z.nativeEnum(Status),
     url: z.string(),
-    created_at: z.date(),
-    updated_at: z.date(),
+    created_at: z.union([z.string(), z.date()]),
+    updated_at: z.union([z.string(), z.date()]),
     created_by: z.number(),
     updated_by: z.number().nullable(),
     tags: z.array(z.object({
@@ -20,7 +19,6 @@ const imageSchema = z.object({
 });
 
 export const createImageBodySchema = z.object({
-    file_id: z.number(),
     title: z.string(),
     url: z.string(),
     tags: z.array(z.string()).optional(),

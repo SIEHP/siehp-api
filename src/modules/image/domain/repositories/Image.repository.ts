@@ -7,6 +7,7 @@ import {
     FindImageByIdResponseDTO,
     UpdateImageDTO,
     UpdateImageResponseDTO,
+    FindAllImagesDTO,
 } from '../dtos/repositories/Image.repository.dto';
 
 export interface ImageRepositoryInterface {
@@ -14,4 +15,5 @@ export interface ImageRepositoryInterface {
     findById(data: FindImageByIdDTO): Promise<FindImageByIdResponseDTO>;
     update(data: UpdateImageDTO): Promise<UpdateImageResponseDTO>;
     delete(data: DeleteImageDTO): Promise<DeleteImageResponseDTO>;
+    findAll(data: FindAllImagesDTO): Promise<FindImageByIdResponseDTO[]>;
 } 

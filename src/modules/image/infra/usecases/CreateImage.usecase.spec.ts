@@ -101,7 +101,6 @@ describe('CreateImageUseCase', () => {
             mockImageRepository.create.mockResolvedValue(mockImage);
 
             const result = await useCase.execute({
-                file_id: 1,
                 title: 'Test Image',
                 url: 'http://example.com/image.jpg',
                 user_email: 'test@example.com',
@@ -122,7 +121,6 @@ describe('CreateImageUseCase', () => {
             mockTagRepository.createImageTag.mockResolvedValue({});
 
             const result = await useCase.execute({
-                file_id: 1,
                 title: 'Test Image',
                 url: 'http://example.com/image.jpg',
                 user_email: 'test@example.com',
@@ -144,7 +142,6 @@ describe('CreateImageUseCase', () => {
             mockTagRepository.createImageTag.mockResolvedValue({});
 
             const result = await useCase.execute({
-                file_id: 1,
                 title: 'Test Image',
                 url: 'http://example.com/image.jpg',
                 user_email: 'test@example.com',
@@ -165,7 +162,6 @@ describe('CreateImageUseCase', () => {
 
             await expect(
                 useCase.execute({
-                    file_id: 1,
                     title: 'Test Image',
                     url: 'http://example.com/image.jpg',
                     user_email: 'test@example.com',
@@ -179,7 +175,6 @@ describe('CreateImageUseCase', () => {
 
             await expect(
                 useCase.execute({
-                    file_id: 1,
                     title: 'Test Image',
                     url: 'http://example.com/image.jpg',
                     user_email: 'test@example.com',

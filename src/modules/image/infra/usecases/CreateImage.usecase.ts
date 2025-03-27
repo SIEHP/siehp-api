@@ -19,7 +19,6 @@ export class CreateImageUseCase implements UseCaseInterface {
     ) {}
 
     async execute({
-        file_id,
         title,
         url,
         user_email,
@@ -43,11 +42,11 @@ export class CreateImageUseCase implements UseCaseInterface {
         }
 
         const image = await this.imageRepository.create({
-            file_id,
             title,
             status: 'ACTIVE',
             url,
             created_by: user.id,
+            file_id: 1,
         });
 
         if (tags && tags.length > 0) {
