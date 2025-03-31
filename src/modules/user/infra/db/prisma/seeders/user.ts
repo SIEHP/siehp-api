@@ -92,13 +92,13 @@ export const userSeeder = async (prisma: PrismaClient) => {
     ],
   });
   const salt = await bcrypt.genSalt(SALT);
-  const password = 'Coxinh@123';
+  const password = '!siehpadmin';
   const hashPassword = await bcrypt.hash(password, salt);
 
   const userOperation1 = prisma.user.create({
     data: {
-      email: 'test1@email.com',
-      name: 'test1',
+      email: 'admin@email.com',
+      name: 'Admin',
       password: hashPassword,
       role: 'ADMIN',
       status: 'ACTIVE',
@@ -114,8 +114,90 @@ export const userSeeder = async (prisma: PrismaClient) => {
     },
   });
 
+  
+
   try {
     await prisma.$transaction([userOperation1]);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Error on userSeeder: ${error.message}`);
+    }
+  }
+
+  const passwordProfessor = '!siehpprofessor';
+  const hashPasswordProfessor = await bcrypt.hash(passwordProfessor, salt);
+
+  const userOperation2 = prisma.user.create({
+    data: {
+      email: 'professor@email.com',
+      name: 'Ciclano Cleberson',
+      password: hashPasswordProfessor,
+      role: 'PROFESSOR',
+      status: 'ACTIVE',
+      registration_code: (Date.now() + 2).toString(),
+      user_permissions: {
+        createMany: {
+          data: createdPermissions
+            .filter(permission => 
+              !['MANTER_PROFESSORES', 'MANTER_ADMINISTRADORES', 'ACESSAR_LOGS', 'RESPONDER_ATIVIDADES'].includes(permission.name)
+            )
+            .map((permission) => ({
+              permission_id: permission.id,
+              status: 'ACTIVE',
+            })),
+        },
+      },
+    },
+  });
+
+  const userOperation3 = prisma.user.create({
+    data: {
+      email: 'professor2@email.com',
+      name: 'Fulano de Tal',
+      password: hashPasswordProfessor,
+      role: 'PROFESSOR',
+      status: 'ACTIVE',
+      registration_code: (Date.now() + 3).toString(),
+      user_permissions: {
+        createMany: {
+          data: createdPermissions
+            .filter(permission => 
+              !['MANTER_PROFESSORES', 'MANTER_ADMINISTRADORES', 'ACESSAR_LOGS', 'RESPONDER_ATIVIDADES'].includes(permission.name)
+            )
+            .map((permission) => ({
+              permission_id: permission.id,
+              status: 'ACTIVE',
+            })),
+        },
+      },
+    },
+  });
+
+  const userOperation4 = prisma.user.create({
+    data: {
+      email: 'professor3@email.com',
+      name: 'Beltrano Silva',
+      password: hashPasswordProfessor,
+      role: 'PROFESSOR',
+      status: 'INACTIVE',
+      registration_code: (Date.now() + 4).toString(),
+      user_permissions: {
+        createMany: {
+          data: createdPermissions
+            .filter(permission => 
+              !['MANTER_PROFESSORES', 'MANTER_ADMINISTRADORES', 'ACESSAR_LOGS', 'RESPONDER_ATIVIDADES'].includes(permission.name)
+            )
+            .map((permission) => ({
+              permission_id: permission.id,
+              status: 'ACTIVE',
+            })),
+        },
+      },
+    },
+  });
+
+  try {
+    await prisma.$transaction([userOperation2, userOperation3, userOperation4]);
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Error on userSeeder: ${error.message}`);

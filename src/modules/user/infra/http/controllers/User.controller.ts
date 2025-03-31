@@ -245,4 +245,17 @@ export class UserController {
     const resetPasswordResponse = await this.resetPasswordUseCase.execute(resetPasswordDto);
     return res.status(HttpStatus.OK).json(resetPasswordResponse);
   }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('user-token')
+  @Get('/professors')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Professores encontrados com sucesso',
+  })
+  @ApiOperation({ summary: 'Obtém todos os professores' })
+  async getProfessors(@Res() res: Response) {
+    const professors = await this.userService.getProfessors();
+    return res.status(HttpStatus.OK).json(professors);
+  }
 }

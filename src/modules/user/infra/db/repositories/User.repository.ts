@@ -13,12 +13,12 @@ import {
   CreateTempUserResponseDTO,
   CreateUserPermissionDTO,
   CreateUserPermissionResponseDTO,
+  FindAllProfessorsResponseDTO,
 } from 'src/modules/user/domain/dtos/repositories/User.repository.dto';
 import { EmailAlreadyInUseExpection } from 'src/modules/user/domain/errors/EmailAlreadyInUse.expection';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
 import { UserRepositoryInterface } from 'src/modules/user/domain/repositories/User.repository';
 import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';
-import { Permissions } from '@prisma/client';
 
 @Injectable()
 export class UserRepository implements UserRepositoryInterface {
@@ -172,6 +172,20 @@ export class UserRepository implements UserRepositoryInterface {
 
     return;
   }
-  
-  
+
+  async findAllProfessors(): Promise<FindAllProfessorsResponseDTO> {
+    return await this.prisma.user.findMany({
+      where: {
+        role: 'PROFESSOR',
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        registration_code: true,
+        role: true,
+        status: true,
+      },
+    });
+  }
 }
