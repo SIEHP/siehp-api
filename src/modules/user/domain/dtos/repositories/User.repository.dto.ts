@@ -42,3 +42,14 @@ export interface CreateUserPermissionDTO {
 }
 
 export interface CreateUserPermissionResponseDTO extends Array<UserPermission> {}
+
+export interface FindAllProfessorsDTO {
+  id: number;
+  name: string;
+  email: string;
+  registration_code: string;
+  role: Role;
+  status: Status;
+}
+
+export type FindAllProfessorsResponseDTO = FindAllProfessorsDTO[];

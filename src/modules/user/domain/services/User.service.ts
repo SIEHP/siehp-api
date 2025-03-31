@@ -6,6 +6,7 @@ import {
   CreateTempUserRequestDTO,
   CreateTempUserResponseDTO,
 } from '../dtos/services/User.service.dto';
+import { FindAllProfessorsResponseDTO } from '../dtos/repositories/User.repository.dto';
 
 export interface UserServiceInterface {
   checkUserPermissions(
@@ -14,4 +15,5 @@ export interface UserServiceInterface {
   comparePassword(data: ComparePasswordRequestDTO): Promise<boolean>;
   createTempUser(data: CreateTempUserRequestDTO): Promise<CreateTempUserResponseDTO>;
   activateUser(data: ActivateUserRequestDTO): Promise<void>;
+  getProfessors(): Promise<FindAllProfessorsResponseDTO>;
 }

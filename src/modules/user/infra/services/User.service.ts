@@ -8,11 +8,11 @@ import {
   CreateTempUserRequestDTO,
   CreateTempUserResponseDTO,
 } from '../../domain/dtos/services/User.service.dto';
-import { Permissions, Status } from '@prisma/client';
+import { Permissions, Status, User } from '@prisma/client';
 import { UserServiceInterface } from '../../domain/services/User.service';
 import { UserRepository } from '../db/repositories/User.repository';
 import { SALT } from '../utils/constants';
-
+import { FindAllProfessorsResponseDTO } from '../../domain/dtos/repositories/User.repository.dto';
 
 @Injectable()
 export class UserService implements UserServiceInterface {
@@ -86,5 +86,7 @@ export class UserService implements UserServiceInterface {
 
   }
 
-  
+  async getProfessors(): Promise<FindAllProfessorsResponseDTO> {
+    return await this.userRepository.findAllProfessors();
+  }
 }
