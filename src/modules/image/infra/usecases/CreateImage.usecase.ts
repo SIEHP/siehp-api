@@ -21,6 +21,11 @@ export class CreateImageUseCase implements UseCaseInterface {
     async execute({
         title,
         url,
+        piece_state,
+        pick_date,
+        tissue,
+        copyright,
+        description,
         user_email,
         tags,
     }: CreateImageUseCaseDTO): Promise<CreateImageUseCaseResponseDTO> {
@@ -45,6 +50,11 @@ export class CreateImageUseCase implements UseCaseInterface {
             title,
             status: 'ACTIVE',
             url,
+            piece_state,
+            pick_date: pick_date ? new Date(pick_date) : undefined,
+            tissue,
+            copyright,
+            description,
             created_by: user.id,
             file_id: 1,
         });

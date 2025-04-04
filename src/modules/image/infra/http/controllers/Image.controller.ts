@@ -57,6 +57,11 @@ export class ImageController {
         const image = await this.createImageUseCase.execute({
             title: body.title,
             url: body.url,
+            piece_state: body.piece_state,
+            pick_date: body.pick_date,
+            tissue: body.tissue,
+            copyright: body.copyright,
+            description: body.description,
             user_email: req.user.email,
             tags: body.tags,
         });
@@ -99,7 +104,13 @@ export class ImageController {
     ) {
         const image = await this.updateImageUseCase.execute({
             id,
-            ...body,
+            title: body.title,
+            url: body.url,
+            piece_state: body.piece_state,
+            pick_date: body.pick_date,
+            tissue: body.tissue,
+            copyright: body.copyright,
+            description: body.description,
             user_email: req.user.email,
             tags: body.tags,
         });

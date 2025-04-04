@@ -3,6 +3,11 @@ import { Status } from '@prisma/client';
 export interface CreateImageUseCaseDTO {
     title: string;
     url: string;
+    piece_state?: string;
+    pick_date?: Date | string;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     user_email: string;
     tags?: string[];
 }
@@ -12,6 +17,11 @@ export interface CreateImageUseCaseResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -33,6 +43,11 @@ export interface GetImageUseCaseResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -48,6 +63,11 @@ export interface UpdateImageUseCaseDTO {
     id: number;
     title?: string;
     url?: string;
+    piece_state?: string;
+    pick_date?: Date | string;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     user_email: string;
     tags?: string[];
 }
@@ -57,6 +77,11 @@ export interface UpdateImageUseCaseResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -78,6 +103,11 @@ export interface DeleteImageUseCaseResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;

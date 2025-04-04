@@ -85,6 +85,11 @@ describe('UpdateImageUseCase', () => {
             title: 'Test Image',
             status: 'ACTIVE',
             url: 'http://example.com/image.jpg',
+            piece_state: 'Preserved',
+            pick_date: new Date('2023-01-01'),
+            tissue: 'Skin',
+            copyright: 'Test Copyright',
+            description: 'Test Description',
             created_at: new Date(),
             updated_at: new Date(),
             created_by: 1,
@@ -111,6 +116,11 @@ describe('UpdateImageUseCase', () => {
             const result = await useCase.execute({
                 id: 1,
                 title: 'Updated Image',
+                piece_state: 'Modified',
+                pick_date: new Date('2023-02-01'),
+                tissue: 'Bone',
+                copyright: 'Updated Copyright',
+                description: 'Updated Description',
                 user_email: 'test@example.com',
             });
 
@@ -136,6 +146,11 @@ describe('UpdateImageUseCase', () => {
             const result = await useCase.execute({
                 id: 1,
                 title: 'Updated Image',
+                piece_state: 'Modified',
+                pick_date: new Date('2023-02-01'),
+                tissue: 'Bone',
+                copyright: 'Updated Copyright',
+                description: 'Updated Description',
                 user_email: 'test@example.com',
                 tags: ['test-tag'],
             });
@@ -164,6 +179,11 @@ describe('UpdateImageUseCase', () => {
             const result = await useCase.execute({
                 id: 1,
                 title: 'Updated Image',
+                piece_state: 'Modified',
+                pick_date: new Date('2023-02-01'),
+                tissue: 'Bone',
+                copyright: 'Updated Copyright',
+                description: 'Updated Description',
                 user_email: 'test@example.com',
                 tags: ['test-tag'],
             });
@@ -190,6 +210,11 @@ describe('UpdateImageUseCase', () => {
                 useCase.execute({
                     id: 1,
                     title: 'Updated Image',
+                    piece_state: 'Modified',
+                    pick_date: new Date('2023-02-01'),
+                    tissue: 'Bone',
+                    copyright: 'Updated Copyright',
+                    description: 'Updated Description',
                     user_email: 'test@example.com',
                 }),
             ).rejects.toThrow(InvalidPermissionsException);
@@ -203,6 +228,11 @@ describe('UpdateImageUseCase', () => {
                 useCase.execute({
                     id: 1,
                     title: 'Updated Image',
+                    piece_state: 'Modified',
+                    pick_date: new Date('2023-02-01'),
+                    tissue: 'Bone',
+                    copyright: 'Updated Copyright',
+                    description: 'Updated Description',
                     user_email: 'test@example.com',
                 }),
             ).rejects.toThrow(NotFoundUserException);
@@ -217,6 +247,11 @@ describe('UpdateImageUseCase', () => {
                 useCase.execute({
                     id: 1,
                     title: 'Updated Image',
+                    piece_state: 'Modified',
+                    pick_date: new Date('2023-02-01'),
+                    tissue: 'Bone',
+                    copyright: 'Updated Copyright',
+                    description: 'Updated Description',
                     user_email: 'test@example.com',
                 }),
             ).rejects.toThrow(NotFoundImageException);

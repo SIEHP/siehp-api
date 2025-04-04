@@ -6,6 +6,11 @@ export interface CreateImageDTO {
     url: string;
     created_by: number;
     file_id: number;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     tags?: string[];
 }
 
@@ -14,6 +19,11 @@ export interface CreateImageResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -34,6 +44,11 @@ export interface FindImageByIdResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -50,6 +65,11 @@ export interface UpdateImageDTO {
     title?: string;
     status?: Status;
     url?: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     updated_by: number;
     tags?: string[];
 }
@@ -59,6 +79,11 @@ export interface UpdateImageResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -80,6 +105,11 @@ export interface DeleteImageResponseDTO {
     title: string;
     status: Status;
     url: string;
+    piece_state?: string;
+    pick_date?: Date;
+    tissue?: string;
+    copyright?: string;
+    description?: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
