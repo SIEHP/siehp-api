@@ -4,6 +4,11 @@ model Image {
     title       String   @db.Text
     status      Status   @default(ACTIVE)
     url         String   @db.Text
+    piece_state String?  @db.Text
+    pick_date   DateTime?
+    tissue      String?  @db.Text
+    copyright   String?  @db.Text
+    description String?  @db.Text
     created_at  DateTime @default(now())
     updated_at  DateTime @default(now()) @updatedAt
     created_by  Int?

@@ -23,6 +23,11 @@ export class UpdateImageUseCase implements UseCaseInterface {
         id,
         title,
         url,
+        piece_state,
+        pick_date,
+        tissue,
+        copyright,
+        description,
         user_email,
         tags,
     }: UpdateImageUseCaseDTO): Promise<UpdateImageUseCaseResponseDTO> {
@@ -104,6 +109,11 @@ export class UpdateImageUseCase implements UseCaseInterface {
             id,
             title,
             url,
+            piece_state,
+            pick_date: pick_date ? new Date(pick_date) : undefined,
+            tissue,
+            copyright,
+            description,
             updated_by: user.id,
         });
 

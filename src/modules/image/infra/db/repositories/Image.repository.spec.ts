@@ -35,12 +35,22 @@ describe('ImageRepository', () => {
         title: 'Test Image',
         url: 'http://example.com/image.jpg',
         created_by: 1,
-        status: Status.ACTIVE
+        status: Status.ACTIVE,
+        piece_state: 'Preserved',
+        pick_date: new Date('2023-01-01'),
+        tissue: 'Skin',
+        copyright: 'Test Copyright',
+        description: 'Test Description'
       });
 
       expect(image).toBeDefined();
       expect(image.title).toBe('Test Image');
       expect(image.status).toBe(Status.ACTIVE);
+      expect(image.piece_state).toBe('Preserved');
+      expect(image.tissue).toBe('Skin');
+      expect(image.copyright).toBe('Test Copyright');
+      expect(image.description).toBe('Test Description');
+      expect(image.pick_date).toEqual(new Date('2023-01-01'));
     });
   });
 
@@ -51,13 +61,20 @@ describe('ImageRepository', () => {
         title: 'Test Image',
         url: 'http://example.com/image.jpg',
         created_by: 1,
-        status: Status.ACTIVE
+        status: Status.ACTIVE,
+        piece_state: 'Preserved',
+        pick_date: new Date('2023-01-01'),
+        tissue: 'Skin',
+        copyright: 'Test Copyright',
+        description: 'Test Description'
       });
 
       const image = await repository.findById({ id: createdImage.id });
 
       expect(image).toBeDefined();
       expect(image.id).toBe(createdImage.id);
+      expect(image.piece_state).toBe('Preserved');
+      expect(image.tissue).toBe('Skin');
     });
 
     it('should return null when image not found', async () => {
@@ -73,18 +90,33 @@ describe('ImageRepository', () => {
         title: 'Test Image',
         url: 'http://example.com/image.jpg',
         created_by: 1,
-        status: Status.ACTIVE
+        status: Status.ACTIVE,
+        piece_state: 'Preserved',
+        pick_date: new Date('2023-01-01'),
+        tissue: 'Skin',
+        copyright: 'Test Copyright',
+        description: 'Test Description'
       });
 
       const updatedImage = await repository.update({
         id: createdImage.id,
         title: 'Updated Image',
         updated_by: 2,
+        piece_state: 'Modified',
+        pick_date: new Date('2023-02-01'),
+        tissue: 'Bone',
+        copyright: 'Updated Copyright',
+        description: 'Updated Description'
       });
 
       expect(updatedImage).toBeDefined();
       expect(updatedImage.title).toBe('Updated Image');
       expect(updatedImage.updated_by).toBe(2);
+      expect(updatedImage.piece_state).toBe('Modified');
+      expect(updatedImage.tissue).toBe('Bone');
+      expect(updatedImage.copyright).toBe('Updated Copyright');
+      expect(updatedImage.description).toBe('Updated Description');
+      expect(updatedImage.pick_date).toEqual(new Date('2023-02-01'));
     });
   });
 
@@ -95,7 +127,12 @@ describe('ImageRepository', () => {
         title: 'Test Image',
         url: 'http://example.com/image.jpg',
         created_by: 1,
-        status: Status.ACTIVE
+        status: Status.ACTIVE,
+        piece_state: 'Preserved',
+        pick_date: new Date('2023-01-01'),
+        tissue: 'Skin',
+        copyright: 'Test Copyright',
+        description: 'Test Description'
       });
 
       const deletedImage = await repository.delete({
