@@ -122,4 +122,18 @@ export interface FindTagsByImageIdResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number | null;
+}
+
+export interface FindAllTagsDTO {
+    // Vazio, pois não precisamos de parâmetros para buscar todas as tags
+}
+
+export interface FindAllTagsResponseDTO {
+    id: number;
+    name: string;
+    status: Status;
+    created_at: Date;
+    updated_at: Date;
+    created_by: number;
+    updated_by: number | null;
 } 

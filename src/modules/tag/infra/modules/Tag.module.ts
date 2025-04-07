@@ -8,6 +8,7 @@ import { DeleteTagUseCase } from '../usecases/DeleteTag.usecase';
 import { CreateImageTagUseCase } from '../usecases/CreateImageTag.usecase';
 import { DeleteImageTagUseCase } from '../usecases/DeleteImageTag.usecase';
 import { GetTagsByImageUseCase } from '../usecases/GetTagsByImage.usecase';
+import { GetAllTagsUseCase } from '../usecases/GetAllTags.usecase';
 import { UserService } from 'src/modules/user/infra/services/User.service';
 import { UserRepository } from 'src/modules/user/infra/db/repositories/User.repository';
 
@@ -22,6 +23,7 @@ import { UserRepository } from 'src/modules/user/infra/db/repositories/User.repo
         CreateImageTagUseCase,
         DeleteImageTagUseCase,
         GetTagsByImageUseCase,
+        GetAllTagsUseCase,
         UserService,
         UserRepository,
     ],

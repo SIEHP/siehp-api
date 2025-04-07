@@ -28,6 +28,7 @@ import { DeleteTagUseCase } from '../../usecases/DeleteTag.usecase';
 import { CreateImageTagUseCase } from '../../usecases/CreateImageTag.usecase';
 import { DeleteImageTagUseCase } from '../../usecases/DeleteImageTag.usecase';
 import { GetTagsByImageUseCase } from '../../usecases/GetTagsByImage.usecase';
+import { GetAllTagsUseCase } from '../../usecases/GetAllTags.usecase';
 import { CreateTagBodyDTO, CreateImageTagBodyDTO, TagResponseDTO, UpdateTagBodyDTO, ImageTagResponseDTO } from 'src/modules/tag/domain/dtos/requests/Tag.request.dto';
 
 @Controller('tag')
@@ -46,6 +47,7 @@ export class TagController {
         private createImageTagUseCase: CreateImageTagUseCase,
         private deleteImageTagUseCase: DeleteImageTagUseCase,
         private getTagsByImageUseCase: GetTagsByImageUseCase,
+        private getAllTagsUseCase: GetAllTagsUseCase,
     ) {}
 
     @UseGuards(AuthGuard)
@@ -181,6 +183,23 @@ export class TagController {
     async findTagsByImage(@Param('image_id', ParseIntPipe) image_id: number, @Req() req: Request, @Res() res: Response) {
         const tags = await this.getTagsByImageUseCase.execute({
             image_id,
+            user_email: req.user.email,
+        });
+
+        return res.status(HttpStatus.OK).json(tags);
+    }
+
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth('user-token')
+    @Get()
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Todas as tags encontradas com sucesso.',
+        type: [TagResponseDTO],
+    })
+    @ApiOperation({ summary: 'Listar todas as tags' })
+    async getAllTags(@Req() req: Request, @Res() res: Response) {
+        const tags = await this.getAllTagsUseCase.execute({
             user_email: req.user.email,
         });
 

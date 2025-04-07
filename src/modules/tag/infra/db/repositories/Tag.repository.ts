@@ -10,6 +10,8 @@ import {
     DeleteImageTagResponseDTO,
     DeleteTagDTO,
     DeleteTagResponseDTO,
+    FindAllTagsDTO,
+    FindAllTagsResponseDTO,
     FindTagByIdDTO,
     FindTagByIdResponseDTO,
     FindTagByNameDTO,
@@ -133,5 +135,18 @@ export class TagRepository implements TagRepositoryInterface {
         });
 
         return imageTags.map((imageTag) => imageTag.tag);
+    }
+
+    async findAll(): Promise<FindAllTagsResponseDTO[]> {
+        const tags = await this.prisma.tag.findMany({
+            where: {
+                status: 'ACTIVE',
+            },
+            orderBy: {
+                name: 'asc',
+            },
+        });
+
+        return tags;
     }
 } 
