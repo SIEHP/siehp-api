@@ -6,6 +6,7 @@ import { InvalidPermissionsException } from "src/modules/user/domain/errors/Inva
 import { UserService } from "src/modules/user/infra/services/User.service";
 import { UserRepository } from "src/modules/user/infra/db/repositories/User.repository";
 import { NotFoundUserException } from "src/modules/user/domain/errors/NotFoundUser.exception";
+import { TagRepository } from "src/modules/tag/infra/db/repositories/Tag.repository";
 
 @Injectable()
 export class ListImageUseCase implements UseCaseInterface {
@@ -13,6 +14,7 @@ export class ListImageUseCase implements UseCaseInterface {
         private imageRepository: ImageRepository,
         private userService: UserService,
         private userRepository: UserRepository,
+        private tagRepository: TagRepository,
     ) {}
     
     async execute({email}: ListImageUseCaseDTO): Promise<ListImageUseCaseResponseDTO> {
@@ -38,6 +40,14 @@ export class ListImageUseCase implements UseCaseInterface {
             user_id: user.id,
         });
 
-        return images;
+        // Buscar e adicionar as tags de cada imagem
+        const imagesWithTags = await Promise.all(
+            images.map(async (image) => {
+                const tags = await this.tagRepository.findTagsByImageId({ image_id: image.id });
+                return { ...image, tags };
+            })
+        );
+
+        return imagesWithTags;
     }
 }
