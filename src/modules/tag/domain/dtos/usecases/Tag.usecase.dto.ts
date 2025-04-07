@@ -109,4 +109,18 @@ export interface GetTagsByImageUseCaseResponseDTO {
     updated_at: Date;
     created_by: number;
     updated_by: number | null;
+}
+
+export interface GetAllTagsUseCaseDTO {
+    user_email: string;
+}
+
+export interface GetAllTagsUseCaseResponseDTO {
+    id: number;
+    name: string;
+    status: Status;
+    created_at: Date;
+    updated_at: Date;
+    created_by: number;
+    updated_by: number | null;
 } 

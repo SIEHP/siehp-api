@@ -7,6 +7,8 @@ import {
     DeleteImageTagResponseDTO,
     DeleteTagDTO,
     DeleteTagResponseDTO,
+    FindAllTagsDTO,
+    FindAllTagsResponseDTO,
     FindTagByIdDTO,
     FindTagByIdResponseDTO,
     FindTagByNameDTO,
@@ -21,6 +23,7 @@ export interface TagRepositoryInterface {
     create(data: CreateTagDTO): Promise<CreateTagResponseDTO>;
     findById(data: FindTagByIdDTO): Promise<FindTagByIdResponseDTO>;
     findByName(data: FindTagByNameDTO): Promise<FindTagByNameResponseDTO>;
+    findAll(): Promise<FindAllTagsResponseDTO[]>;
     update(data: UpdateTagDTO): Promise<UpdateTagResponseDTO>;
     delete(data: DeleteTagDTO): Promise<DeleteTagResponseDTO>;
     createImageTag(data: CreateImageTagDTO): Promise<CreateImageTagResponseDTO>;
