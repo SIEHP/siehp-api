@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
+import { ZodError } from 'zod';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -21,14 +22,27 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message =
+    let message =
       exception instanceof Error ? exception.message : 'Internal Server Error';
+    
+    // Adicionar informações detalhadas para erros de validação do Zod
+    let details;
+    
+    if (exception instanceof ZodError) {
+      details = exception.errors.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+        code: err.code,
+      }));
+      message = 'Erro de validação: dados inválidos ou faltando';
+    }
 
     const responseJSON = {
       message,
       statusCode: status,
       timestamp: new Date().toISOString(),
       path: request.url,
+      details,
     };
 
     await this.loggerProvider.error(responseJSON);

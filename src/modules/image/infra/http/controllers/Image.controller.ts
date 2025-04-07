@@ -102,20 +102,38 @@ export class ImageController {
         @Req() req: Request,
         @Res() res: Response,
     ) {
-        const image = await this.updateImageUseCase.execute({
-            id,
-            title: body.title,
-            url: body.url,
-            piece_state: body.piece_state,
-            pick_date: body.pick_date,
-            tissue: body.tissue,
-            copyright: body.copyright,
-            description: body.description,
-            user_email: req.user.email,
-            tags: body.tags,
-        });
+        if (!req.user || !req.user.email) {
+            return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({
+                message: 'Campo "user_email" é obrigatório',
+                statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+                timestamp: new Date().toISOString(),
+                path: req.url,
+                details: [{
+                    field: 'user_email',
+                    message: 'Email do usuário é obrigatório',
+                    code: 'required'
+                }]
+            });
+        }
 
-        return res.status(HttpStatus.OK).json(image);
+        try {
+            const image = await this.updateImageUseCase.execute({
+                id,
+                title: body.title,
+                url: body.url,
+                piece_state: body.piece_state,
+                pick_date: body.pick_date,
+                tissue: body.tissue,
+                copyright: body.copyright,
+                description: body.description,
+                user_email: req.user.email,
+                tags: body.tags,
+            });
+
+            return res.status(HttpStatus.OK).json(image);
+        } catch (error) {
+            throw error;
+        }
     }
 
     @UseGuards(AuthGuard)

@@ -9,6 +9,7 @@ import { UpdateImageUseCaseDTO, UpdateImageUseCaseResponseDTO } from '../../doma
 import { TagRepository } from 'src/modules/tag/infra/db/repositories/Tag.repository';
 import { NotFoundImageException } from '../../domain/errors/NotFoundImage.exception';
 import { NotFoundTagException } from 'src/modules/tag/domain/errors/NotFoundTag.exception';
+import { ZodError, z } from 'zod';
 
 @Injectable()
 export class UpdateImageUseCase implements UseCaseInterface {
@@ -29,8 +30,22 @@ export class UpdateImageUseCase implements UseCaseInterface {
         copyright,
         description,
         user_email,
-        tags,
+        tags = [],
     }: UpdateImageUseCaseDTO): Promise<UpdateImageUseCaseResponseDTO> {
+        // Validar campos obrigatórios explicitamente
+        const requiredFieldsSchema = z.object({
+            id: z.number({ required_error: "ID da imagem é obrigatório" }),
+            user_email: z.string({ required_error: "Email do usuário é obrigatório" }).email("Email do usuário deve ser válido"),
+        });
+        
+        try {
+            requiredFieldsSchema.parse({ id, user_email });
+        } catch (error) {
+            if (error instanceof ZodError) {
+                throw error;
+            }
+        }
+        
         const checkUserPermission = await this.userService.checkUserPermissions({
             user_email,
             neededPermissions: ['MANTER_IMAGENS'],
@@ -56,8 +71,80 @@ export class UpdateImageUseCase implements UseCaseInterface {
         const existingTags = await this.tagRepository.findTagsByImageId({ image_id: id });
         image.tags = existingTags;
 
-        if (tags !== undefined) {
-            // Delete existing image tags
+        // Garantir que tags seja sempre um array
+        const processedTags = Array.isArray(tags) ? tags : [];
+        
+        // Tratamento de tags modificado para evitar o erro de unicidade
+        if (processedTags.length > 0) {
+            // Manter um registro de todas as tags que serão atribuídas à imagem
+            const updatedImageTags = [];
+            
+            // Encontrar ou criar todas as tags necessárias
+            const tagObjects = await Promise.all(
+                processedTags.map(async (tagName) => {
+                    try {
+                        // Verificar se a tag já existe
+                        const existingTag = await this.tagRepository.findByName({ name: tagName });
+                        return existingTag;
+                    } catch (error) {
+                        if (error instanceof NotFoundTagException) {
+                            // Criar nova tag se não existir
+                            const newTag = await this.tagRepository.create({
+                                name: tagName,
+                                status: 'ACTIVE',
+                                created_by: user.id,
+                            });
+                            return newTag;
+                        }
+                        throw error;
+                    }
+                })
+            );
+            
+            // Identificar quais tags já estão associadas e quais precisam ser adicionadas
+            const existingTagIds = existingTags.map(tag => tag.id);
+            
+            // Para cada tag que deve estar na imagem
+            for (const tagObj of tagObjects) {
+                // Verificar se já está associada
+                const isAlreadyAssociated = existingTagIds.includes(tagObj.id);
+                
+                if (!isAlreadyAssociated) {
+                    // Se não estiver associada, criar nova associação
+                    try {
+                        await this.tagRepository.createImageTag({
+                            image_id: id,
+                            tag_id: tagObj.id,
+                            created_by: user.id,
+                        });
+                    } catch (error) {
+                        console.warn(`Erro ao associar tag ${tagObj.id} à imagem ${id}:`, error);
+                        // Continuar com as próximas tags mesmo se houver erro
+                    }
+                }
+                // Adicionar à lista de tags atualizadas
+                updatedImageTags.push(tagObj);
+            }
+            
+            // Identificar tags que precisam ser removidas (estão na imagem mas não no array de tags enviado)
+            const newTagIds = tagObjects.map(tag => tag.id);
+            const tagsToRemove = existingTags.filter(tag => !newTagIds.includes(tag.id));
+            
+            // Remover as associações que não são mais necessárias
+            await Promise.all(
+                tagsToRemove.map(tag => 
+                    this.tagRepository.deleteImageTag({
+                        image_id: id,
+                        tag_id: tag.id,
+                        updated_by: user.id,
+                    })
+                )
+            );
+            
+            // Atualizar as tags da imagem
+            image.tags = updatedImageTags;
+        } else {
+            // Se o array de tags estiver vazio, remover todas as tags
             await Promise.all(
                 existingTags.map((tag) =>
                     this.tagRepository.deleteImageTag({
@@ -67,48 +154,13 @@ export class UpdateImageUseCase implements UseCaseInterface {
                     }),
                 ),
             );
-
-            if (tags.length > 0) {
-                // Create or find tags and associate them
-                const imageTags = await Promise.all(
-                    tags.map(async (tagName) => {
-                        try {
-                            const existingTag = await this.tagRepository.findByName({ name: tagName });
-                            return existingTag;
-                        } catch (error) {
-                            if (error instanceof NotFoundTagException) {
-                                const newTag = await this.tagRepository.create({
-                                    name: tagName,
-                                    status: 'ACTIVE',
-                                    created_by: user.id,
-                                });
-                                return newTag;
-                            }
-                            throw error;
-                        }
-                    }),
-                );
-
-                await Promise.all(
-                    imageTags.map((tag) =>
-                        this.tagRepository.createImageTag({
-                            image_id: id,
-                            tag_id: tag.id,
-                            created_by: user.id,
-                        }),
-                    ),
-                );
-
-                image.tags = imageTags;
-            } else {
-                image.tags = [];
-            }
+            image.tags = [];
         }
 
         const updatedImage = await this.imageRepository.update({
             id,
             title,
-            url,
+            url: url || image.url,
             piece_state,
             pick_date: pick_date ? new Date(pick_date) : undefined,
             tissue,

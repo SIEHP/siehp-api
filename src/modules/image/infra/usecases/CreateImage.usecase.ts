@@ -27,7 +27,7 @@ export class CreateImageUseCase implements UseCaseInterface {
         copyright,
         description,
         user_email,
-        tags,
+        tags = [],
     }: CreateImageUseCaseDTO): Promise<CreateImageUseCaseResponseDTO> {
         const checkUserPermission = await this.userService.checkUserPermissions({
             user_email,
@@ -59,9 +59,11 @@ export class CreateImageUseCase implements UseCaseInterface {
             file_id: 1,
         });
 
-        if (tags && tags.length > 0) {
+        const processedTags = Array.isArray(tags) ? tags : [];
+        
+        if (processedTags.length > 0) {
             const imageTags = await Promise.all(
-                tags.map(async (tagName) => {
+                processedTags.map(async (tagName) => {
                     try {
                         const existingTag = await this.tagRepository.findByName({ name: tagName });
                         return existingTag;
@@ -90,6 +92,8 @@ export class CreateImageUseCase implements UseCaseInterface {
             );
 
             image.tags = imageTags;
+        } else {
+            image.tags = [];
         }
 
         return image;

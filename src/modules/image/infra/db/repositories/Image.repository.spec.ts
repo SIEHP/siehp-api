@@ -24,7 +24,10 @@ describe('ImageRepository', () => {
   });
 
   beforeEach(async () => {
+    // First delete any image_tag relationships
     await prisma.imageTag.deleteMany();
+    
+    // Then it's safe to delete images
     await prisma.image.deleteMany();
   });
 

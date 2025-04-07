@@ -27,22 +27,22 @@ export const createImageBodySchema = z.object({
     title: z.string(),
     url: z.string(),
     piece_state: z.string().optional(),
-    pick_date: z.union([z.string(), z.date()]).optional(),
+    pick_date: z.string().or(z.date()).optional().transform(val => val ? new Date(val) : undefined),
     tissue: z.string().optional(),
     copyright: z.string().optional(),
     description: z.string().optional(),
-    tags: z.array(z.string()).optional(),
+    tags: z.array(z.string()).default([]),
 }).required();
 
 export const updateImageBodySchema = z.object({
     title: z.string().optional(),
     url: z.string().optional(),
     piece_state: z.string().optional(),
-    pick_date: z.union([z.string(), z.date()]).optional(),
+    pick_date: z.string().or(z.date()).optional().transform(val => val ? new Date(val) : undefined),
     tissue: z.string().optional(),
     copyright: z.string().optional(),
     description: z.string().optional(),
-    tags: z.array(z.string()).optional(),
+    tags: z.array(z.string()).default([]),
 }).required();
 
 export class CreateImageBodyDTO extends createZodDto(createImageBodySchema) {}

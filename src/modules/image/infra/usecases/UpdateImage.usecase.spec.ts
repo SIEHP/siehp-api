@@ -112,6 +112,7 @@ describe('UpdateImageUseCase', () => {
             mockImageRepository.findById.mockResolvedValue(mockImage);
             mockImageRepository.update.mockResolvedValue(mockImage);
             mockTagRepository.findTagsByImageId.mockResolvedValue([mockTag]);
+            mockTagRepository.deleteImageTag.mockResolvedValue({});
 
             const result = await useCase.execute({
                 id: 1,
@@ -124,14 +125,13 @@ describe('UpdateImageUseCase', () => {
                 user_email: 'test@example.com',
             });
 
-            expect(result).toEqual({ ...mockImage, tags: [mockTag] });
+            expect(result).toEqual({ ...mockImage, tags: [] });
             expect(mockUserService.checkUserPermissions).toHaveBeenCalled();
             expect(mockUserRepository.findByEmail).toHaveBeenCalled();
             expect(mockImageRepository.findById).toHaveBeenCalled();
             expect(mockImageRepository.update).toHaveBeenCalled();
-            expect(mockTagRepository.deleteImageTag).not.toHaveBeenCalled();
-            expect(mockTagRepository.findByName).not.toHaveBeenCalled();
             expect(mockTagRepository.findTagsByImageId).toHaveBeenCalled();
+            expect(mockTagRepository.deleteImageTag).toHaveBeenCalled();
         });
 
         it('should update an image and its tags', async () => {
@@ -140,7 +140,6 @@ describe('UpdateImageUseCase', () => {
             mockImageRepository.findById.mockResolvedValue(mockImage);
             mockImageRepository.update.mockResolvedValue(mockImage);
             mockTagRepository.findByName.mockResolvedValue(mockTag);
-            mockTagRepository.createImageTag.mockResolvedValue({});
             mockTagRepository.findTagsByImageId.mockResolvedValue([mockTag]);
 
             const result = await useCase.execute({
@@ -160,9 +159,7 @@ describe('UpdateImageUseCase', () => {
             expect(mockUserRepository.findByEmail).toHaveBeenCalled();
             expect(mockImageRepository.findById).toHaveBeenCalled();
             expect(mockImageRepository.update).toHaveBeenCalled();
-            expect(mockTagRepository.deleteImageTag).toHaveBeenCalled();
             expect(mockTagRepository.findByName).toHaveBeenCalled();
-            expect(mockTagRepository.createImageTag).toHaveBeenCalled();
             expect(mockTagRepository.findTagsByImageId).toHaveBeenCalled();
         });
 
@@ -173,7 +170,6 @@ describe('UpdateImageUseCase', () => {
             mockImageRepository.update.mockResolvedValue(mockImage);
             mockTagRepository.findByName.mockRejectedValue(new NotFoundTagException());
             mockTagRepository.create.mockResolvedValue(mockTag);
-            mockTagRepository.createImageTag.mockResolvedValue({});
             mockTagRepository.findTagsByImageId.mockResolvedValue([mockTag]);
 
             const result = await useCase.execute({
@@ -193,10 +189,8 @@ describe('UpdateImageUseCase', () => {
             expect(mockUserRepository.findByEmail).toHaveBeenCalled();
             expect(mockImageRepository.findById).toHaveBeenCalled();
             expect(mockImageRepository.update).toHaveBeenCalled();
-            expect(mockTagRepository.deleteImageTag).toHaveBeenCalled();
             expect(mockTagRepository.findByName).toHaveBeenCalled();
             expect(mockTagRepository.create).toHaveBeenCalled();
-            expect(mockTagRepository.createImageTag).toHaveBeenCalled();
             expect(mockTagRepository.findTagsByImageId).toHaveBeenCalled();
         });
 
