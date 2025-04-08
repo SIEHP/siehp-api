@@ -37,6 +37,8 @@ describe('UpdateImageUseCase', () => {
         findByImageId: jest.fn(),
         findTagsByImageId: jest.fn(),
         deleteImageTag: jest.fn(),
+        findInactiveImageTag: jest.fn(),
+        reactivateImageTag: jest.fn(),
     };
 
     beforeEach(async () => {
@@ -249,6 +251,79 @@ describe('UpdateImageUseCase', () => {
                     user_email: 'test@example.com',
                 }),
             ).rejects.toThrow(NotFoundImageException);
+        });
+
+        it('should reactivate inactive tags when they are re-added to the image', async () => {
+            const inactiveTag = {
+                id: 2,
+                image_id: 1,
+                tag_id: 2,
+                status: 'INACTIVE',
+                created_at: new Date(),
+                updated_at: new Date(),
+                created_by: 1,
+                updated_by: 1,
+            };
+
+            const mockTagToReactivate = {
+                id: 2,
+                name: 'inactive-tag',
+                status: 'ACTIVE',
+                created_at: new Date(),
+                updated_at: new Date(),
+                created_by: 1,
+                updated_by: null,
+            };
+
+            mockUserService.checkUserPermissions.mockResolvedValue({ hasPermission: true });
+            mockUserRepository.findByEmail.mockResolvedValue(mockUser);
+            mockImageRepository.findById.mockResolvedValue(mockImage);
+            mockImageRepository.update.mockResolvedValue(mockImage);
+            
+            // Mock for findByName to handle the tag we're reactivating
+            mockTagRepository.findByName.mockImplementation((data) => {
+                if (data.name === 'inactive-tag') {
+                    return Promise.resolve(mockTagToReactivate);
+                }
+                return Promise.resolve(mockTag);
+            });
+            
+            // Mock empty existing tags
+            mockTagRepository.findTagsByImageId.mockResolvedValue([]);
+            
+            // Mock findInactiveImageTag to simulate finding an inactive tag
+            mockTagRepository.findInactiveImageTag.mockImplementation((data) => {
+                if (data.tag_id === 2) {
+                    return Promise.resolve(inactiveTag);
+                }
+                return Promise.resolve(null);
+            });
+            
+            // Mock reactivateImageTag
+            mockTagRepository.reactivateImageTag.mockResolvedValue({
+                ...inactiveTag,
+                status: 'ACTIVE',
+                updated_by: mockUser.id,
+            });
+
+            const result = await useCase.execute({
+                id: 1,
+                title: 'Updated Image',
+                user_email: 'test@example.com',
+                tags: ['test-tag', 'inactive-tag'],
+            });
+
+            expect(result).toBeDefined();
+            expect(mockTagRepository.findInactiveImageTag).toHaveBeenCalledWith({
+                image_id: 1,
+                tag_id: 2,
+            });
+            expect(mockTagRepository.reactivateImageTag).toHaveBeenCalledWith({
+                image_id: 1,
+                tag_id: 2,
+                updated_by: mockUser.id,
+            });
+            expect(mockTagRepository.createImageTag).toHaveBeenCalled();
         });
     });
 }); 

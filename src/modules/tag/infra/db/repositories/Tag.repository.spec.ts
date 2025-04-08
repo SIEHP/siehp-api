@@ -212,4 +212,134 @@ describe('TagRepository', () => {
       expect(tags).toHaveLength(0);
     });
   });
+
+  describe('findInactiveImageTag', () => {
+    it('should find an inactive image tag association', async () => {
+      const tag = await repository.create({
+        name: 'Test Tag',
+        created_by: 1,
+        status: Status.ACTIVE
+      });
+
+      const image = await prisma.image.create({
+        data: {
+          url: 'test-image.jpg',
+          created_by: 1,
+          status: Status.ACTIVE,
+          file_id: 1,
+          title: 'Test Image'
+        }
+      });
+
+      // Create an image tag association
+      const imageTag = await repository.createImageTag({
+        image_id: image.id,
+        tag_id: tag.id,
+        created_by: 1
+      });
+
+      // Set the image tag to INACTIVE
+      await repository.deleteImageTag({
+        image_id: image.id,
+        tag_id: tag.id,
+        updated_by: 1
+      });
+
+      // Find the inactive image tag
+      const inactiveTag = await repository.findInactiveImageTag({
+        image_id: image.id,
+        tag_id: tag.id
+      });
+
+      expect(inactiveTag).toBeDefined();
+      expect(inactiveTag.image_id).toBe(image.id);
+      expect(inactiveTag.tag_id).toBe(tag.id);
+      expect(inactiveTag.status).toBe('INACTIVE');
+    });
+
+    it('should return null when no inactive image tag association found', async () => {
+      const tag = await repository.create({
+        name: 'Test Tag',
+        created_by: 1,
+        status: Status.ACTIVE
+      });
+
+      const image = await prisma.image.create({
+        data: {
+          url: 'test-image.jpg',
+          created_by: 1,
+          status: Status.ACTIVE,
+          file_id: 1,
+          title: 'Test Image'
+        }
+      });
+
+      // Create an ACTIVE image tag association
+      await repository.createImageTag({
+        image_id: image.id,
+        tag_id: tag.id,
+        created_by: 1
+      });
+
+      // Try to find an inactive image tag (should be null since it's active)
+      const inactiveTag = await repository.findInactiveImageTag({
+        image_id: image.id,
+        tag_id: tag.id
+      });
+
+      expect(inactiveTag).toBeNull();
+    });
+  });
+
+  describe('reactivateImageTag', () => {
+    it('should reactivate an inactive image tag association', async () => {
+      const tag = await repository.create({
+        name: 'Test Tag',
+        created_by: 1,
+        status: Status.ACTIVE
+      });
+
+      const image = await prisma.image.create({
+        data: {
+          url: 'test-image.jpg',
+          created_by: 1,
+          status: Status.ACTIVE,
+          file_id: 1,
+          title: 'Test Image'
+        }
+      });
+
+      // Create an image tag association
+      await repository.createImageTag({
+        image_id: image.id,
+        tag_id: tag.id,
+        created_by: 1
+      });
+
+      // Set the image tag to INACTIVE
+      await repository.deleteImageTag({
+        image_id: image.id,
+        tag_id: tag.id,
+        updated_by: 1
+      });
+
+      // Reactivate the image tag
+      const reactivatedTag = await repository.reactivateImageTag({
+        image_id: image.id,
+        tag_id: tag.id,
+        updated_by: 2
+      });
+
+      expect(reactivatedTag).toBeDefined();
+      expect(reactivatedTag.image_id).toBe(image.id);
+      expect(reactivatedTag.tag_id).toBe(tag.id);
+      expect(reactivatedTag.status).toBe('ACTIVE');
+      expect(reactivatedTag.updated_by).toBe(2);
+      
+      // Verify the tag appears in findTagsByImageId results
+      const tags = await repository.findTagsByImageId({ image_id: image.id });
+      expect(tags).toHaveLength(1);
+      expect(tags[0].id).toBe(tag.id);
+    });
+  });
 }); 
