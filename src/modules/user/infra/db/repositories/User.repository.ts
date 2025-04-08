@@ -14,6 +14,8 @@ import {
   CreateUserPermissionDTO,
   CreateUserPermissionResponseDTO,
   FindAllProfessorsResponseDTO,
+  FindUserByIdDTO,
+  FindUserByIdResponseDTO,
 } from 'src/modules/user/domain/dtos/repositories/User.repository.dto';
 import { EmailAlreadyInUseExpection } from 'src/modules/user/domain/errors/EmailAlreadyInUse.expection';
 import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
@@ -97,6 +99,30 @@ export class UserRepository implements UserRepositoryInterface {
         },
       },
     });
+
+    return user;
+  }
+
+  async findById({
+    id,
+  }: FindUserByIdDTO): Promise<FindUserByIdResponseDTO> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        registration_code: true,
+        role: true,
+        status: true,
+        profile_image_url: true,
+      },
+    });
+
+    if (!user) throw new NotFoundUserException();
 
     return user;
   }

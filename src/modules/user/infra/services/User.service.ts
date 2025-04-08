@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import {
   ActivateUserRequestDTO,
+  ChangeUserStatusRequestDTO,
   CheckUserPermissionsRequestDTO,
   CheckUserPermissionsResponseDTO,
   ComparePasswordRequestDTO,
@@ -88,5 +89,20 @@ export class UserService implements UserServiceInterface {
 
   async getProfessors(): Promise<FindAllProfessorsResponseDTO> {
     return await this.userRepository.findAllProfessors();
+  }
+
+  async changeUserStatus(data: ChangeUserStatusRequestDTO): Promise<void> {
+    const user = await this.userRepository.findById({ 
+      id: data.userId
+    });
+    
+    const newStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    
+    await this.userRepository.update({
+      id: data.userId,
+      data: {
+        status: newStatus
+      }
+    });
   }
 }

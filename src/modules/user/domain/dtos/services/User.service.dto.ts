@@ -31,4 +31,8 @@ export interface ActivateUserRequestDTO {
   permissions: Permissions[];
 }
 
+export interface ChangeUserStatusRequestDTO {
+  userId: number; 
+}
+
 

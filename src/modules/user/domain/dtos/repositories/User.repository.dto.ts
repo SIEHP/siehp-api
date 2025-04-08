@@ -18,6 +18,12 @@ export interface FindUserByEmailResponseDTO
     }[];
   }
 
+export interface FindUserByIdDTO {
+  id: number;
+}
+
+export interface FindUserByIdResponseDTO extends Omit<User, 'updated_at' | 'created_at' | 'created_by' | 'updated_by'> {}
+
 export interface UpdateUserDTO {
   id: number;
   data: Prisma.UserUpdateInput;

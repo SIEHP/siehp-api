@@ -4,6 +4,7 @@ import {
   Get,
   HttpStatus,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -28,7 +29,10 @@ import { UserService } from '../../services/User.service';
 import { join } from 'path';
 import { EmailProvider } from 'src/shared/infra/providers/Email.provider';
 import { TokenProvider } from '../../providers/Token.provider';
-import { InviteBodyDTO, InviteResponseDTO } from 'src/modules/user/domain/dtos/requests/Invite.request.dto';
+import {
+  InviteBodyDTO,
+  InviteResponseDTO,
+} from 'src/modules/user/domain/dtos/requests/Invite.request.dto';
 import { ValidateTokenBodyDTO } from 'src/modules/user/domain/dtos/requests/ValidateToken.request.dto';
 import { RefreshAccessTokenUseCase } from 'src/modules/user/infra/usecases/Refresh.access.token.usecase';
 import { ForgotPasswordBodyDTO } from 'src/modules/user/domain/dtos/requests/ForgotPassword.request.dto';
@@ -114,10 +118,14 @@ export class UserController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Convite enviado com sucesso',
-    type: InviteResponseDTO
+    type: InviteResponseDTO,
   })
   @ApiOperation({ summary: 'Envia convite para professor' })
-  async inviteProfessor(@Body() inviteDto: InviteBodyDTO, @Req() req: Request, @Res() res: Response) {
+  async inviteProfessor(
+    @Body() inviteDto: InviteBodyDTO,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     // Verifica se o usuário tem permissão de administrador
     const checkUserPermission = await this.userService.checkUserPermissions({
       user_email: req.user.email,
@@ -154,11 +162,12 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Valida token de convite e cria conta' })
   async validateToken(
-    @Body() validateTokenDto : ValidateTokenBodyDTO,
+    @Body() validateTokenDto: ValidateTokenBodyDTO,
     @Res() res: Response,
   ) {
-    
-    const tokenData = await this.tokenProvider.getTokenData(validateTokenDto.token);
+    const tokenData = await this.tokenProvider.getTokenData(
+      validateTokenDto.token,
+    );
 
     if (!tokenData || tokenData.expires_at < new Date()) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -166,12 +175,12 @@ export class UserController {
       });
     }
 
-    if(tokenData.is_used){
+    if (tokenData.is_used) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Esse token já foi utilizado.',
       });
     }
-    
+
     await this.userService.activateUser({
       userId: tokenData.user_id,
       password: validateTokenDto.password,
@@ -187,7 +196,6 @@ export class UserController {
 
     await this.tokenProvider.invalidateToken(validateTokenDto.token);
 
-   
     const templatePath = join(
       process.cwd(),
       'src/modules/user/infra/views/emails/success.hbs',
@@ -220,8 +228,9 @@ export class UserController {
   @ApiOperation({ summary: 'Atualiza o token de acesso do usuário' })
   async refreshAccessToken(@Req() req: Request, @Res() res: Response) {
     const user = req.user;
-    const refreshAccessTokenResponse = await this.refreshAccessTokenUseCase.execute({email: user.email})
-    return res.status(HttpStatus.OK).json(refreshAccessTokenResponse)
+    const refreshAccessTokenResponse =
+      await this.refreshAccessTokenUseCase.execute({ email: user.email });
+    return res.status(HttpStatus.OK).json(refreshAccessTokenResponse);
   }
 
   @Post('/forgot-password')
@@ -230,8 +239,12 @@ export class UserController {
     description: 'E-mail de recuperação de senha enviado com sucesso',
   })
   @ApiOperation({ summary: 'Envia e-mail de recuperação de senha' })
-  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordBodyDTO, @Res() res: Response) {
-    const forgotPasswordResponse = await this.forgotPasswordUseCase.execute(forgotPasswordDto);
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordBodyDTO,
+    @Res() res: Response,
+  ) {
+    const forgotPasswordResponse =
+      await this.forgotPasswordUseCase.execute(forgotPasswordDto);
     return res.status(HttpStatus.OK).json(forgotPasswordResponse);
   }
 
@@ -241,8 +254,12 @@ export class UserController {
     description: 'Senha recuperada com sucesso',
   })
   @ApiOperation({ summary: 'Recupera a senha do usuário' })
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordBodyDTO, @Res() res: Response) {
-    const resetPasswordResponse = await this.resetPasswordUseCase.execute(resetPasswordDto);
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordBodyDTO,
+    @Res() res: Response,
+  ) {
+    const resetPasswordResponse =
+      await this.resetPasswordUseCase.execute(resetPasswordDto);
     return res.status(HttpStatus.OK).json(resetPasswordResponse);
   }
 
@@ -257,5 +274,38 @@ export class UserController {
   async getProfessors(@Res() res: Response) {
     const professors = await this.userService.getProfessors();
     return res.status(HttpStatus.OK).json(professors);
+  }
+
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth('user-token')
+  @Put('/change-user-status')
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Status alterado com sucesso',
+  })
+  @ApiOperation({ summary: 'Muda o status do usuário' })
+  async changeUserStatus(
+    @Body() changeUserStatusDto: { userId: number },
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const checkUserPermission = await this.userService.checkUserPermissions({
+      user_email: req.user.email,
+      neededPermissions: ['MANTER_PROFESSORES', 'MANTER_ALUNOS'],
+    });
+
+    if (!checkUserPermission.hasPermission) {
+      throw new InvalidPermissionsException({
+        permissions: checkUserPermission.notIncludedPermissions,
+      });
+    }
+
+    await this.userService.changeUserStatus({
+      userId: changeUserStatusDto.userId,
+    });
+
+    return res.status(HttpStatus.OK).json({
+      message: 'Status do usuário alterado com sucesso',
+    });
   }
 }
