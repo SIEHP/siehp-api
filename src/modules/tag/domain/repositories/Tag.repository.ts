@@ -29,4 +29,6 @@ export interface TagRepositoryInterface {
     createImageTag(data: CreateImageTagDTO): Promise<CreateImageTagResponseDTO>;
     deleteImageTag(data: DeleteImageTagDTO): Promise<DeleteImageTagResponseDTO>;
     findTagsByImageId(data: FindTagsByImageIdDTO): Promise<FindTagsByImageIdResponseDTO[]>;
+    findInactiveImageTag(data: { image_id: number; tag_id: number }): Promise<any | null>;
+    reactivateImageTag(data: { image_id: number; tag_id: number; updated_by: number }): Promise<any>;
 } 

@@ -110,16 +110,36 @@ export class UpdateImageUseCase implements UseCaseInterface {
                 const isAlreadyAssociated = existingTagIds.includes(tagObj.id);
                 
                 if (!isAlreadyAssociated) {
-                    // Se não estiver associada, criar nova associação
-                    try {
-                        await this.tagRepository.createImageTag({
-                            image_id: id,
-                            tag_id: tagObj.id,
-                            created_by: user.id,
-                        });
-                    } catch (error) {
-                        console.warn(`Erro ao associar tag ${tagObj.id} à imagem ${id}:`, error);
-                        // Continuar com as próximas tags mesmo se houver erro
+                    // Verificar se existe uma associação inativa para reativar
+                    const inactiveAssociation = await this.tagRepository.findInactiveImageTag({
+                        image_id: id,
+                        tag_id: tagObj.id
+                    });
+                    
+                    if (inactiveAssociation) {
+                        // Reativar a associação existente
+                        try {
+                            await this.tagRepository.reactivateImageTag({
+                                image_id: id,
+                                tag_id: tagObj.id,
+                                updated_by: user.id
+                            });
+                        } catch (error) {
+                            console.warn(`Erro ao reativar tag ${tagObj.id} para a imagem ${id}:`, error);
+                            // Continuar com as próximas tags mesmo se houver erro
+                        }
+                    } else {
+                        // Se não existe associação, criar nova
+                        try {
+                            await this.tagRepository.createImageTag({
+                                image_id: id,
+                                tag_id: tagObj.id,
+                                created_by: user.id,
+                            });
+                        } catch (error) {
+                            console.warn(`Erro ao associar tag ${tagObj.id} à imagem ${id}:`, error);
+                            // Continuar com as próximas tags mesmo se houver erro
+                        }
                     }
                 }
                 // Adicionar à lista de tags atualizadas

@@ -115,7 +115,7 @@ export class TagRepository implements TagRepositoryInterface {
                 },
             },
             data: {
-                status: 'DELETED',
+                status: 'INACTIVE',
                 updated_by: data.updated_by,
             },
         });
@@ -135,6 +135,35 @@ export class TagRepository implements TagRepositoryInterface {
         });
 
         return imageTags.map((imageTag) => imageTag.tag);
+    }
+
+    async findInactiveImageTag(data: { image_id: number; tag_id: number }): Promise<any | null> {
+        const imageTag = await this.prisma.imageTag.findFirst({
+            where: {
+                image_id: data.image_id,
+                tag_id: data.tag_id,
+                status: 'INACTIVE',
+            },
+        });
+
+        return imageTag;
+    }
+
+    async reactivateImageTag(data: { image_id: number; tag_id: number; updated_by: number }): Promise<any> {
+        const imageTag = await this.prisma.imageTag.update({
+            where: {
+                image_id_tag_id: {
+                    image_id: data.image_id,
+                    tag_id: data.tag_id,
+                },
+            },
+            data: {
+                status: 'ACTIVE',
+                updated_by: data.updated_by,
+            },
+        });
+
+        return imageTag;
     }
 
     async findAll(): Promise<FindAllTagsResponseDTO[]> {
