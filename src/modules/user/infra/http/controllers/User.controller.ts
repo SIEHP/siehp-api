@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpStatus,
   Post,
   Req,
@@ -9,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { AllExceptionsFilterDTO } from 'src/shared/domain/dtos/errors/AllException.filter.dto';
+import { AllExceptionsFilterDTO } from 'src/shared/infra/filters/AllException.filter/dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -21,15 +20,17 @@ import { AuthGuard } from '../guards/Jwt.guard';
 import {
   LoginBodyDTO,
   LoginResponseDTO,
-} from 'src/modules/user/domain/dtos/requests/Login.request.dto';
-import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
-import { TestAuthResponseDTO } from 'src/modules/user/domain/dtos/requests/TestAuth.request.dto';
-import { UserService } from '../../services/User.service';
+} from 'src/modules/user/infra/requests/Login.request/dto';
+import { InvalidPermissionsException } from 'src/modules/user/infra/exceptions/InvalidPermissions.exception';
+import { UserService } from 'src/modules/user/infra/services/User.service';
 import { join } from 'path';
 import { EmailProvider } from 'src/shared/infra/providers/Email.provider';
-import { TokenProvider } from '../../providers/Token.provider';
-import { InviteBodyDTO, InviteResponseDTO } from 'src/modules/user/domain/dtos/requests/Invite.request.dto';
-import { ValidateTokenBodyDTO } from 'src/modules/user/domain/dtos/requests/ValidateToken.request.dto';
+import { TokenProvider } from 'src/modules/user/infra/providers/Token.provider';
+import {
+  InviteBodyDTO,
+  InviteResponseDTO,
+} from 'src/modules/user/infra/requests/InviteTeacher.request/dto';
+import { ValidateTokenBodyDTO } from 'src/modules/user/infra/requests/ValidateToken.request.dto';
 
 @Controller('user')
 @ApiTags('User')
@@ -60,56 +61,18 @@ export class UserController {
 
   @UseGuards(AuthGuard)
   @ApiBearerAuth('user-token')
-  @Get('/teste')
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Usuário autenticado',
-    type: TestAuthResponseDTO,
-  })
-  @ApiOperation({ summary: 'Rota de teste para Guarda de Autenticação' })
-  async testAuth(@Req() req: Request, @Res() res: Response) {
-    // TODO: REMOVE BEFORE PRODUCTION
-    const checkUserPermission = await this.userService.checkUserPermissions({
-      user_email: req.user.email,
-      neededPermissions: ['ACESSAR_LOGS'],
-    });
-
-    if (!checkUserPermission.hasPermission) {
-      throw new InvalidPermissionsException({
-        permissions: checkUserPermission.notIncludedPermissions,
-      });
-    }
-
-    const testTemplate = join(
-      process.cwd(),
-      'src/modules/user/infra/views/emails/test.hbs',
-    );
-
-    await this.emailProvider.send({
-      subject: 'Login realizado com sucesso',
-      to: req.user.email,
-      templateData: {
-        filePath: testTemplate,
-        variables: {
-          userName: req.user.email,
-          test: 'variável teste',
-        },
-      },
-    });
-
-    return res.status(HttpStatus.OK).json({ user: req.user });
-  }
-
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth('user-token')
   @Post('/invite/professor')
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Convite enviado com sucesso',
-    type: InviteResponseDTO
+    type: InviteResponseDTO,
   })
   @ApiOperation({ summary: 'Envia convite para professor' })
-  async inviteProfessor(@Body() inviteDto: InviteBodyDTO, @Req() req: Request, @Res() res: Response) {
+  async inviteProfessor(
+    @Body() inviteDto: InviteBodyDTO,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     // Verifica se o usuário tem permissão de administrador
     const checkUserPermission = await this.userService.checkUserPermissions({
       user_email: req.user.email,
@@ -146,11 +109,12 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Valida token de convite e cria conta' })
   async validateToken(
-    @Body() validateTokenDto : ValidateTokenBodyDTO,
+    @Body() validateTokenDto: ValidateTokenBodyDTO,
     @Res() res: Response,
   ) {
-    
-    const tokenData = await this.tokenProvider.getTokenData(validateTokenDto.token);
+    const tokenData = await this.tokenProvider.getTokenData(
+      validateTokenDto.token,
+    );
 
     if (!tokenData || tokenData.expires_at < new Date()) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -158,12 +122,12 @@ export class UserController {
       });
     }
 
-    if(tokenData.is_used){
+    if (tokenData.is_used) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Esse token já foi utilizado.',
       });
     }
-    
+
     await this.userService.activateUser({
       userId: tokenData.user_id,
       password: validateTokenDto.password,
@@ -171,7 +135,6 @@ export class UserController {
 
     await this.tokenProvider.invalidateToken(validateTokenDto.token);
 
-   
     const templatePath = join(
       process.cwd(),
       'src/modules/user/infra/views/emails/success.hbs',

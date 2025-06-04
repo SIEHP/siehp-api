@@ -4,20 +4,17 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';
 import { Enviroment } from 'src/shared/config/app';
-import { AllExceptionsFilter } from 'src/shared/domain/errors/AllException.filter';
+import { AllExceptionsFilter } from 'src/shared/infra/filters/AllException.filter';
 import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
-import { ZodValidationExceptionFilter } from 'src/shared/domain/errors/ZodValidationException.filter';
+import { ZodValidationExceptionFilter } from 'src/shared/infra/filters/ZodValidationException.filter';
 import { UserModule } from '../../modules/User.module';
-import { NotFoundUserException } from 'src/modules/user/domain/errors/NotFoundUser.exception';
-import { UnauthorizedException } from 'src/modules/user/domain/errors/Unauthorized.exception';
+import { NotFoundUserException } from 'src/modules/user/infra/exceptions/NotFoundUser.exception';
 import { SharedModule } from 'src/shared/infra/modules/Shared.module';
-import { LoginBodySchema } from 'src/modules/user/domain/dtos/requests/Login.request.dto';
+import { LoginBodySchema } from 'src/modules/user/infra/requests/Login.request/dto';
 import { ZodError } from 'zod';
-import { ValidationException } from 'src/shared/domain/errors/Validation.exception';
-import { InvalidPermissionsException } from 'src/modules/user/domain/errors/InvalidPermissions.exception';
+import { ValidationException } from 'src/shared/infra/exceptions/Validation.exception';
+import { InvalidPermissionsException } from 'src/modules/user/infra/exceptions/InvalidPermissions.exception';
 import { userSeeder } from '../../db/prisma/seeders/user';
-import { SALT } from '../../utils/constants';
-import * as bcrypt from 'bcrypt';
 import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
 import { UserController } from './User.controller';
 import { LoginUseCase } from '../../usecases/Login.usecase';
@@ -30,10 +27,11 @@ import { Role, Status } from '@prisma/client';
 describe('UserController - /user', () => {
   const controllerRoute = '/user';
   const loginRoute = `${controllerRoute}/login`;
-  const testRoute = `${controllerRoute}/teste`;
+  // TODO: Add missing routes and remove any mock data
 
   let app: NestExpressApplication;
   let prisma: PrismaProvider;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let jwtToken: string;
   let controller: UserController;
   let loginUseCase: LoginUseCase;
@@ -133,100 +131,26 @@ describe('UserController - /user', () => {
     });
   });
 
-    it('should return a JWT token for valid credentials', async () => {
-      const loginDto = {
-        email: 'test1@email.com',
-        password: 'Coxinh@123',
-      };
+  it('should return a JWT token for valid credentials', async () => {
+    const loginDto = {
+      email: 'test1@email.com',
+      password: 'Coxinh@123',
+    };
 
-      jest.spyOn(loginUseCase, 'execute').mockResolvedValue({
-        access_token: 'mock-jwt-token'
-      });
-
-      await controller.login(loginDto, mockResponse);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          access_token: expect.any(String),
-        }),
-      );
-      
-      jwtToken = (mockResponse.json as jest.Mock).mock.calls[0][0].access_token;
+    jest.spyOn(loginUseCase, 'execute').mockResolvedValue({
+      access_token: 'mock-jwt-token',
     });
 
-  
+    await controller.login(loginDto, mockResponse);
 
-  describe('GET /teste', () => {
-    it('should return user info for valid JWT token', async () => {
-      const mockRequest = {
-        user: {
-          id: 1,
-          email: 'test1@email.com',
-          name: 'Test User',
-          role: Role.ADMIN,
-          status: Status.ACTIVE,
-        },
-      };
+    expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        access_token: expect.any(String),
+      }),
+    );
 
-      jest.spyOn(userService, 'checkUserPermissions').mockResolvedValue({
-        hasPermission: true,
-        notIncludedPermissions: [],
-      });
-
-      jest.spyOn(emailProvider, 'send').mockResolvedValue();
-
-      await controller.testAuth(mockRequest as any, mockResponse);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          user: expect.objectContaining({
-            email: 'test1@email.com',
-          }),
-        }),
-      );
-    });
-
-    it('should return 401 for missing JWT token', async () => {
-      const response = await request(app.getHttpServer())
-        .get(testRoute)
-        .set('Accept', 'application/json');
-
-      const expectedError = new UnauthorizedException();
-
-      expect(response.status).toEqual(expectedError.getStatus());
-      expect(response.body?.message).toEqual(expectedError.message);
-    });
-
-    it('should throw forbidden when user dont have permission', async () => {
-      const mockRequest = {
-        user: {
-          id: 2,
-          email: 'test2@email.com',
-          name: 'Test User 2',
-          role: Role.ADMIN,
-          status: Status.ACTIVE,
-        },
-      };
-
-      jest.spyOn(userService, 'checkUserPermissions').mockResolvedValue({
-        hasPermission: false,
-        notIncludedPermissions: ['ACESSAR_LOGS'],
-      });
-
-      const expectedError = new InvalidPermissionsException({
-        permissions: ['ACESSAR_LOGS'],
-      });
-
-      try {
-        await controller.testAuth(mockRequest as any, mockResponse);
-      } catch (error) {
-        expect(error).toBeInstanceOf(InvalidPermissionsException);
-        expect(error.getStatus()).toBe(HttpStatus.FORBIDDEN);
-        expect(error.message).toBe(expectedError.message);
-      }
-    });
+    jwtToken = (mockResponse.json as jest.Mock).mock.calls[0][0].access_token;
   });
 
   describe('inviteProfessor', () => {
@@ -332,7 +256,9 @@ describe('UserController - /user', () => {
         },
       };
 
-      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(mockTokenData);
+      jest
+        .spyOn(tokenProvider, 'getTokenData')
+        .mockResolvedValue(mockTokenData);
       jest.spyOn(userService, 'activateUser').mockResolvedValue();
       jest.spyOn(tokenProvider, 'invalidateToken').mockResolvedValue();
       jest.spyOn(emailProvider, 'send').mockResolvedValue();
@@ -361,7 +287,7 @@ describe('UserController - /user', () => {
 
       const mockRequest = {
         token: 'invalid-token',
-        password: 'password123'
+        password: 'password123',
       };
 
       await controller.validateToken(mockRequest, mockResponse);
@@ -396,7 +322,9 @@ describe('UserController - /user', () => {
         },
       };
 
-      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(mockTokenData);
+      jest
+        .spyOn(tokenProvider, 'getTokenData')
+        .mockResolvedValue(mockTokenData);
 
       await controller.validateToken(
         { token: 'expired-token', password: 'password123' },
@@ -432,11 +360,13 @@ describe('UserController - /user', () => {
         },
       };
 
-      jest.spyOn(tokenProvider, 'getTokenData').mockResolvedValue(mockTokenData);
+      jest
+        .spyOn(tokenProvider, 'getTokenData')
+        .mockResolvedValue(mockTokenData);
 
       const mockRequest = {
         token: 'used-token',
-        password: 'password123'
+        password: 'password123',
       };
 
       await controller.validateToken(mockRequest, mockResponse);

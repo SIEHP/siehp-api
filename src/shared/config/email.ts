@@ -1,5 +1,5 @@
 import { z, ZodError } from 'zod';
-import { WrongEnviromentException } from '../domain/errors/WrongEnviroment.exception';
+import { WrongEnviromentException } from '../infra/exceptions/WrongEnviroment.exception';
 
 const defaultFromAddress = 'nao-responda@siehp.com';
 const defaultFromName = 'SIEHP';

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import z, { ZodError } from 'zod';
-import { WrongEnviromentException } from '../domain/errors/WrongEnviroment.exception';
+import { WrongEnviromentException } from '../infra/exceptions/WrongEnviroment.exception';
 
 const discordConfigSchema = z.object({
   ERROR_WEBHOOK_URL: z.string().url().optional().nullable(),
