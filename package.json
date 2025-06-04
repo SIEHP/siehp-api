@@ -19,7 +19,10 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down",
+    "docker:start": "docker compose start",
+    "docker:stop": "docker compose stop",
     "docker:restart": "docker compose restart",
+    "docker:exec": "docker compose exec -it app sh",
     "docker:logs": "docker compose logs -f",
     "docker:rebuild": "npm run docker:down && npm run docker:up"
   },
