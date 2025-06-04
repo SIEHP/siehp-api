@@ -11,7 +11,7 @@ import {
   createUserDTO,
   CreateTempUserResponseDTO,
 } from 'src/modules/user/infra/db/repositories/User.repository/dto';
-import { EmailAlreadyInUseExpection } from 'src/modules/user/infra/exceptions/EmailAlreadyInUse.expection';
+import { EmailAlreadyInUseExpection } from 'src/modules/user/infra/exceptions/EmailAlreadyInUse.exception';
 import { NotFoundUserException } from 'src/modules/user/infra/exceptions/NotFoundUser.exception';
 import { UserRepositoryInterface } from 'src/modules/user/infra/db/repositories/User.repository/interface';
 import { PrismaProvider } from 'src/shared/infra/providers/Prisma.provider';

@@ -91,7 +91,7 @@
     ],
     "coveragePathIgnorePatterns": [
       "/app/",
-      "/WrongEnviroment.exception.ts",
+      "/WrongEnviroment.exception/",
       "@types/",
       "/swagger.ts",
       "/prisma/seeders/"

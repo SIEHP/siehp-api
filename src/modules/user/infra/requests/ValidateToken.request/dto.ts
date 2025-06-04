@@ -1,6 +1,6 @@
 import { createZodDto } from 'nestjs-zod';
-import { password, z } from 'nestjs-zod/z';
-import { passwordSchema } from './Login.request/dto';
+import { z } from 'nestjs-zod/z';
+import { passwordSchema } from '../Login.request/dto';
 
 export const tokenSchema = z
   .object({
@@ -19,3 +19,11 @@ export const tokenSchema = z
   });
 
 export class ValidateTokenBodyDTO extends createZodDto(tokenSchema) {}
+
+const validateTokenResponseSchema = z.object({
+  message: z.string(),
+});
+
+export class ValidateTokenResponseDTO extends createZodDto(
+  validateTokenResponseSchema,
+) {}
