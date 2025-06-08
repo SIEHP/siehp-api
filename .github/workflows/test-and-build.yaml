@@ -54,3 +54,6 @@ jobs:
           SHADOW_DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/test"
           DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5433/local"
           APP_PORT: "8080"
+          FRONTEND_URL: "http://127.0.0.1:3000"
+          JWT_SECRET: "9424a67d3a292acfdc18cd51ef3846da"
+          
