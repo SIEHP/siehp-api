@@ -1,0 +1,44 @@
+model Permission {
+    id          Int         @id @default(autoincrement())
+    name        Permissions @unique
+    description String
+    status      Status      @default(ACTIVE)
+    created_at  DateTime    @default(now())
+
+    permissions_included    IncludedPermissions[] @relation(name: "PermissionRelation")
+    included_in_permissions IncludedPermissions[] @relation(name: "IncludedPermissionRelation")
+    user_permissions        UserPermission[]
+
+    @@map("permissions")
+}
+
+model IncludedPermissions {
+    id                     Int      @id @default(autoincrement())
+    included_permission_id Int
+    permission_id          Int
+    status                 Status   @default(ACTIVE)
+    created_at             DateTime @default(now())
+
+    permission          Permission? @relation(name: "PermissionRelation", fields: [permission_id], references: [id])
+    included_permission Permission? @relation(name: "IncludedPermissionRelation", fields: [included_permission_id], references: [id])
+
+    @@unique([permission_id, included_permission_id])
+    @@map("included_permissions")
+}
+
+enum Permissions {
+    MANTER_PROFESSORES
+    MANTER_ALUNOS
+    MANTER_ADMINISTRADORES
+    MANTER_IMAGENS
+    MANTER_TURMAS
+    MANTER_CONTEUDOS
+    MANTER_ATIVIDADES
+    ACESSAR_TURMAS
+    ACESSAR_CONTEUDOS
+    ACESSAR_ATIVIDADES
+    ACESSAR_IMAGENS
+    ACESSAR_LOGS
+    CORRIGIR_ATIVIDADES
+    RESPONDER_ATIVIDADES
+}

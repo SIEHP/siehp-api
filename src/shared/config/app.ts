@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 import z, { ZodError } from 'zod';
-import { WrongEnviromentException } from '../domain/errors/WrongEnviroment.exception';
+import { WrongEnviromentException } from '../infra/exceptions/WrongEnviroment.exception';
 
 export enum Enviroment {
   DEVELOPMENT = 'development',
@@ -14,6 +14,8 @@ const appConfigSchema = z.object({
   NODE_ENV: z.nativeEnum(Enviroment).default(Enviroment.DEVELOPMENT).optional(),
   DATABASE_URL: z.string().min(1),
   SHADOW_DATABASE_URL: z.string().min(1),
+  JWT_SECRET: z.string().min(16),
+  FRONTEND_URL: z.string().url(),
 });
 
 let appConfig: z.infer<typeof appConfigSchema> = {};
@@ -24,6 +26,8 @@ try {
     NODE_ENV: process.env.NODE_ENV,
     DATABASE_URL: process.env.DATABASE_URL,
     SHADOW_DATABASE_URL: process.env.SHADOW_DATABASE_URL,
+    JWT_SECRET: process.env.JWT_SECRET,
+    FRONTEND_URL: process.env.FRONTEND_URL,
   });
 } catch (error) {
   if (error instanceof ZodError) {

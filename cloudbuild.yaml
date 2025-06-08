@@ -7,6 +7,20 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA']
 
+  # Run database migrations
+  - name: 'gcr.io/$PROJECT_ID/$REPO_NAME-$BRANCH_NAME:$COMMIT_SHA'
+    env:
+      - DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/$BRANCH_NAME?host=127.0.0.1
+      - SHADOW_DATABASE_URL=postgresql://admin:SIEHPDATABASE2024@localhost/test?host=127.0.0.1
+    entrypoint: sh  
+    args:
+      - -c
+      - |
+        wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+        chmod +x cloud_sql_proxy
+        ./cloud_sql_proxy -instances=siehp-410023:us-central1:siehp-database-dev=tcp:5432 & sleep 3
+        npx prisma db push --accept-data-loss
+
   # Deploy
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: '/bin/sh'

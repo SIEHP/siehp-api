@@ -4,22 +4,40 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { patchNestJsSwagger } from 'nestjs-zod';
 import { appConfig } from 'src/shared/config/app';
 import { sharedSwaggerConfig } from 'src/shared/config/swagger';
-import { AllExceptionsFilter } from 'src/shared/domain/errors/AllException.filter';
-import { ZodValidationExceptionFilter } from 'src/shared/domain/errors/ZodValidationException.filter';
-import { SharedModule } from 'src/shared/infra/modules/Shared.module';
+import { AllExceptionsFilter } from 'src/shared/infra/filters/AllException.filter';
+import { ZodValidationExceptionFilter } from 'src/shared/infra/filters/ZodValidationException.filter';
 import { DiscordWebhookProvider } from 'src/shared/infra/providers/DiscordWebhook.provider';
+import { AppModule } from './app.module';
+import { apiReference } from '@scalar/nestjs-api-reference';
+import { LoggerProvider } from 'src/shared/infra/providers/Logger.provider';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(SharedModule);
+  const logger = new LoggerProvider(new DiscordWebhookProvider());
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
   app.useGlobalFilters(
-    new AllExceptionsFilter(new DiscordWebhookProvider()),
-    new ZodValidationExceptionFilter(),
+    new AllExceptionsFilter(logger),
+    new ZodValidationExceptionFilter(logger),
   );
 
   patchNestJsSwagger();
 
   const sharedDocument = SwaggerModule.createDocument(app, sharedSwaggerConfig);
-  SwaggerModule.setup('swagger', app, sharedDocument);
+
+  app.use(
+    '/docs',
+    apiReference({
+      theme: 'deepSpace',
+      spec: {
+        content: sharedDocument,
+      },
+      metaData: {
+        title: 'SIEHP API Docs',
+        description: 'API Documentation for SIEHP',
+      },
+    }),
+  );
 
   await app.listen(appConfig.PORT);
 }
